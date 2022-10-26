@@ -10,5 +10,8 @@ app.use('/user',require('./router/userRouter'));
 
 const PORT = 5000;
 app.listen(PORT, () => {
+
+  
   console.log(`Listening to the PORT ${PORT}`);
 });
+

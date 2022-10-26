@@ -1,11 +1,12 @@
 const UserModel = require("../models/userModel");
 const bcrypt = require("bcrypt");
+
 const userCtrl = {
   register: async (req, res) => {
     try {
-
       const { username, email, password, cpassword, contact, address } =
         req.body;
+        
       const users = await UserModel.findOne({ email });
       if (!users) {
         if (password !== cpassword) {
