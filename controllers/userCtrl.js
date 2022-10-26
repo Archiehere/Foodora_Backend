@@ -1,6 +1,7 @@
 const UserModel = require("../models/userModel");
 const bcrypt = require("bcrypt");
 const nodemailer=require("nodemailer");
+const e = require("express");
 const transporter=nodemailer.createTransport({
     service:"gmail",
     auth:{
@@ -11,9 +12,9 @@ const transporter=nodemailer.createTransport({
 const userCtrl = {
   register: async (req, res) => {
     try {
-      const { username, email, password } =
+      let { username, email, password } =
         req.body;
-        
+        email=email.toLowerCase();
       const users = await UserModel.findOne({ email });
       if (!users) {
         // if (password !== cpassword) {
@@ -22,6 +23,7 @@ const userCtrl = {
         // if (contact.length > 13) {
         //   throw new Error("Incorrect Credentials");
         // }
+        
         const passwordHash = await bcrypt.hash(password, 12);
         const user = UserModel({
           username,
@@ -29,6 +31,7 @@ const userCtrl = {
           password: passwordHash,
         });
         await user.save();
+
         res.status(200).json({
           success: true,
           data: user,
