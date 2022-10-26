@@ -11,7 +11,7 @@ const transporter=nodemailer.createTransport({
 const userCtrl = {
   register: async (req, res) => {
     try {
-      const { username, email, password, cpassword, contact, address } =
+      const { username, email, password, cpassword, } =
         req.body;
         
       const users = await UserModel.findOne({ email });
@@ -19,16 +19,14 @@ const userCtrl = {
         if (password !== cpassword) {
           throw new Error("Password and confirm password do not match!");
         }
-        if (contact.length > 13) {
-          throw new Error("Incorrect Credentials");
-        }
+        // if (contact.length > 13) {
+        //   throw new Error("Incorrect Credentials");
+        // }
         const passwordHash = await bcrypt.hash(password, 12);
         const user = UserModel({
           username,
           email,
           password: passwordHash,
-          contact,
-          address,
         });
         await user.save();
         res.status(200).json({

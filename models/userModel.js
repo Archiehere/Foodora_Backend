@@ -14,13 +14,13 @@ const userSchema = mongoose.Schema({
     type:String,
     required:true
   },
-  contact:{
-    type:String,
-    required:true
-  },
-  address:{
-    type:String
-  }
+  // contact:{
+  //   type:String,
+  //   required:true
+  // },
+  // address:{
+  //   type:String
+  // }
 });
 
 const UserModel = mongoose.model("USER",userSchema);
