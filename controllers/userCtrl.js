@@ -11,14 +11,14 @@ const transporter=nodemailer.createTransport({
 const userCtrl = {
   register: async (req, res) => {
     try {
-      const { username, email, password, cpassword, } =
+      const { username, email, password } =
         req.body;
         
       const users = await UserModel.findOne({ email });
       if (!users) {
-        if (password !== cpassword) {
-          throw new Error("Password and confirm password do not match!");
-        }
+        // if (password !== cpassword) {
+        //   throw new Error("Password and confirm password do not match!");
+        // }
         // if (contact.length > 13) {
         //   throw new Error("Incorrect Credentials");
         // }
