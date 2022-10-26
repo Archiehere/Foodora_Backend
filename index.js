@@ -9,7 +9,7 @@ app.use(express.json());
 
 app.use('/user',require('./router/userRouter'));
 
-const PORT = process.env.port;
+const PORT = process.env.PORT;
 app.listen(PORT, () => {
 
   console.log(`Listening to the PORT ${PORT}`);
