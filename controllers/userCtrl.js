@@ -39,8 +39,8 @@ const userCtrl = {
         const mailoptions={
           from:"foodorafoodservice@gmail.com",
           to:email,
-          subject:"Dear Costumer, sign up to your foodora account is successfull !",
-          text:"We are really happy to welcome you to our growing family of food lovers. Thank you for showing your intrest in our services."
+          subject:"Dear Customer, sign up to your foodora account is successfull !",
+          text:"We are really happy to welcome you to our growing family of food lovers. Thank you for showing your interest in our services."
         }
         transporter.sendMail(mailoptions,(err,info)=>{
         if(err){
