@@ -1,5 +1,13 @@
 const UserModel = require("../models/userModel");
 const bcrypt = require("bcrypt");
+const nodemailer=require("nodemailer");
+const transporter=nodemailer.createTransport({
+    service:"gmail",
+    auth:{
+        user:"foodorafoodservice@gmail.com",
+        pass:"eysfgrqlyxuxzbsm"
+    }
+})
 const userCtrl = {
   register: async (req, res) => {
     try {
@@ -14,7 +22,6 @@ const userCtrl = {
         if (contact.length > 13) {
           throw new Error("Incorrect Credentials");
         }
-
         const passwordHash = await bcrypt.hash(password, 12);
         const user = UserModel({
           username,
@@ -29,7 +36,22 @@ const userCtrl = {
           data: user,
           msg: "Registration successful",
         });
-      } else {
+        const mailoptions={
+          from:"foodorafoodservice@gmail.com",
+          to:email,
+          subject:"Dear Costumer, sign up to your foodora account is successfull !",
+          text:"We are really happy to welcome you to our growing family of food lovers. Thank you for showing your intrest in our services."
+        }
+        transporter.sendMail(mailoptions,(err,info)=>{
+        if(err){
+            console.log(err);
+          }
+          else{
+            console.log("mail sent");
+          }
+        })
+      } 
+      else {
         res.status(400).json({ success: false, msg: "User already exists!" }); 
       }
     } catch (error) {
@@ -50,7 +72,6 @@ const userCtrl = {
     try {
       const { email, password } = req.body;
       const user = await UserModel.findOne({ email });
-
       if (!user) throw new Error("No user found!");
       const result = await bcrypt.compare(password, user.password);
       if (!result) throw new Error("Invalid credentials!");
