@@ -26,13 +26,11 @@ const userCtrl = {
         // if (contact.length > 13) {
         //   throw new Error("Incorrect Credentials");
         // }
-        const otp = otpGenerator.generate(6, { upperCaseAlphabets: false, specialChars: false });
         const passwordHash = await bcrypt.hash(password, 12);
         const user = UserModel({
           username,
           email,
           password: passwordHash,
-          otp,
         });
         await user.save();
 
@@ -102,14 +100,13 @@ const userCtrl = {
   sendOTP : async (req,res) =>{
     try {
       // console.log(req.route.path);
-      const{email,resend} = req.body;
+      const{email} = req.body;
       
       const user = await UserModel.findOne({ email });
       if (!user) throw new Error("No user found!");
-      if(resend){
-        user.otp = otpGenerator.generate(6, { upperCaseAlphabets: false, specialChars: false });
-        user.save();
-      }
+      user.otp = otpGenerator.generate(6, { upperCaseAlphabets: false, specialChars: false });
+      user.save();
+
       const mailoptions={
         from:"foodorafoodservice@gmail.com",
         to:email,
