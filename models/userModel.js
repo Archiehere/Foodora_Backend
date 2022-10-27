@@ -12,8 +12,12 @@ const userSchema = mongoose.Schema({
   },
   username:{
     type:String,
-    required:true
+    required:true,
   },
+  otp:{
+    type:String,
+    required:false,
+  }
   // contact:{
   //   type:String,
   //   required:true
