@@ -102,10 +102,14 @@ const userCtrl = {
   sendOTP : async (req,res) =>{
     try {
       // console.log(req.route.path);
-      const{email} = req.body;
+      const{email,resend} = req.body;
+      
       const user = await UserModel.findOne({ email });
       if (!user) throw new Error("No user found!");
-      
+      if(resend){
+        user.otp = otpGenerator.generate(6, { upperCaseAlphabets: false, specialChars: false });
+        user.save();
+      }
       const mailoptions={
         from:"foodorafoodservice@gmail.com",
         to:email,

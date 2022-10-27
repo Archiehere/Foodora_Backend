@@ -17,7 +17,11 @@ const userSchema = mongoose.Schema({
   otp:{
     type:String,
     required:false,
-  }
+  },
+  resend:{
+    type:Boolean,
+    required:false,
+  },
   // contact:{
   //   type:String,
   //   required:true
