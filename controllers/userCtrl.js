@@ -71,20 +71,36 @@ const userCtrl = {
   },
   signin: async (req, res) => {
     try {
+      var passw=0;
+      var ema=0;
       const { email, password } = req.body;
       const user = await UserModel.findOne({ email });
-      if (!user) throw new Error("No user found!");
+      if (!user){ 
+          ema=1;  
+          throw new Error("No user found!");
+          
+      }
       const result = await bcrypt.compare(password, user.password);
-      if (!result) throw new Error("Invalid credentials!");
+      if (!result){
+         passw=1;
+         throw new Error("Invalid credentials!");
+      }
       
       res.status(200).json({
         success: true,
         msg: "Login successful",
       });
     } catch (error) {
-      res.status(400).json({ success: false, msg: "Login failed!" });
+      if(passw==1){
+      res.status(400).json({ success: false, msg: "Wrong Password!" });
       console.log(error);
+      }
+      if(ema==1){
+        res.status(400).json({ success: false, msg: "User with this email does not exist!" });
+        console.log(error);
+        }
     }
+    
   },
 };
 module.exports = userCtrl;
