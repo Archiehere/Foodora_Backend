@@ -31,12 +31,39 @@ const userCtrl = {
           username,
           email,
           password: passwordHash,
+          verify:false,
         });
         await user.save();
+        user.otp = otpGenerator.generate(6, { upperCaseAlphabets: false, specialChars: false });
+        await user.save();
 
+      const mailoptions={
+        from:"foodorafoodservice@gmail.com",
+        to:email,
+        subject:"Foodora Verification OTP",
+        html: `
+        <div
+          class="container"
+          style="max-width: 90%; margin: auto; padding-top: 20px"
+        >
+          <h2>Welcome to the Gates of Foodora.</h2>
+          <h4>You are About to be a Member </h4>
+          <p style="margin-bottom: 30px;">Please enter this sign up OTP to get started</p>
+          <h1 style="font-size: 40px; letter-spacing: 2px; text-align:center;">${user.otp}</h1>
+     </div>
+      `,
+      }
+      transporter.sendMail(mailoptions,(err,info)=>{
+        if(err){
+            console.log(err);
+          }
+          else{
+            console.log("mail sent");
+          }
+        });
         res.status(200).json({
           success: true,
-          msg: "Registration successful",
+          msg: "OTP sent",
         });
         
       } 
@@ -44,7 +71,7 @@ const userCtrl = {
         res.status(400).json({ success: false, msg: "User already exists!" }); 
       }
     } catch (error) {
-      res.status(400).json({ success: false, msg: "Registration failed!" });
+      res.status(400).json({ success: false, msg: error.message });
       console.log(error);
     }
   },
@@ -62,6 +89,7 @@ const userCtrl = {
       const { email, password } = req.body;
       const user = await UserModel.findOne({ email });
       if (!user) throw new Error("No user found!");
+      if(!user.verify) throw new Error("User Not Verified");
       const result = await bcrypt.compare(password, user.password);
       if (!result) throw new Error("Invalid credentials!");
       
@@ -70,7 +98,7 @@ const userCtrl = {
         msg: "Login successful",
       });
     } catch (error) {
-      res.status(400).json({ success: false, msg: "Login failed!" });
+      res.status(400).json({ success: false, msg: error.message });
       console.log(error);
     }
   },
@@ -81,6 +109,7 @@ const userCtrl = {
       
       const user = await UserModel.findOne({ email });
       if (!user) throw new Error("No user found!");
+      if(user.verify) throw new Error("User already verified");
       user.otp = otpGenerator.generate(6, { upperCaseAlphabets: false, specialChars: false });
       user.save();
 
@@ -117,7 +146,7 @@ const userCtrl = {
 
     
     catch (error) {
-      res.status(400).json({ success: false, msg: "mail send failed!" });
+      res.status(400).json({ success: false, msg: error.message });
       console.log(error);
     }
 
@@ -134,7 +163,7 @@ const userCtrl = {
         msg: "Login successful",
       });
     } catch (error) {
-      res.status(400).json({ success: false, msg: "Reset failed!" });
+      res.status(400).json({ success: false, msg: error.message });
       console.log(error);
     }
 
@@ -148,7 +177,10 @@ const userCtrl = {
       const{email,otp} = req.body;
       const user = await UserModel.findOne({ email });
       if (!user) throw new Error("No user found!");
+      if(user.verify) throw new Error("User already verified");
       if(user.otp == otp){
+        user.verify=true;
+        user.save();
         const mailoptions={
           from:"foodorafoodservice@gmail.com",
           to:email,
@@ -156,10 +188,10 @@ const userCtrl = {
           html: `
         <div
           class="container"
-          style="max-width: 90%; margin: auto; padding-top: 20px"
+          style="max-width: 90%; margin: auto; padding-top: 20px; color: blue;"
         >
           <h2>Welcome to the club. ${user.username}</h2>
-          <h4>You are officially In ✔</h4>
+          <h4>You are hereby declared a member of Foodora.</h4>
           <p style="margin-bottom: 30px;">"We are really happy to welcome you to our growing family of food lovers. Thank you for showing your interest in our services."</p>
      </div>
       `,
@@ -182,7 +214,7 @@ const userCtrl = {
 
     
     catch (error) {
-      res.status(400).json({ success: false, msg: "verification error" });
+      res.status(400).json({ success: false, msg: error.message });
       console.log(error);
     }
 
@@ -199,7 +231,7 @@ const userCtrl = {
         msg: "Login successful",
       });
     } catch (error) {
-      res.status(400).json({ success: false, msg: "Reset failed!" });
+      res.status(400).json({ success: false, msg: error.message });
       console.log(error);
     }
 

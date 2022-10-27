@@ -18,10 +18,11 @@ const userSchema = mongoose.Schema({
     type:String,
     required:false,
   },
-  resend:{
+  verify:{
     type:Boolean,
     required:false,
   },
+  
   // contact:{
   //   type:String,
   //   required:true
