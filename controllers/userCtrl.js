@@ -38,30 +38,7 @@ const userCtrl = {
           success: true,
           msg: "Registration successful",
         });
-        const mailoptions={
-          from:"foodorafoodservice@gmail.com",
-          to:email,
-          subject:"Dear Customer, sign up to your foodora account is successfull !",
-          html: `
-        <div
-          class="container"
-          style="max-width: 90%; margin: auto; padding-top: 20px"
-        >
-          <h2>Welcome to the club. ${username}</h2>
-          <h4>You are officially In ✔</h4>
-          <p style="margin-bottom: 30px;">"We are really happy to welcome you to our growing family of food lovers. Thank you for showing your interest in our services."</p>
-          <h1 style="font-size: 40px; letter-spacing: 2px; text-align:center;">${otp}</h1>
-     </div>
-      `,
-        }
-        transporter.sendMail(mailoptions,(err,info)=>{
-        if(err){
-            console.log(err);
-          }
-          else{
-            console.log("mail sent");
-          }
-        })
+        
       } 
       else {
         res.status(400).json({ success: false, msg: "User already exists!" }); 
@@ -116,9 +93,9 @@ const userCtrl = {
           class="container"
           style="max-width: 90%; margin: auto; padding-top: 20px"
         >
-          <h2>Welcome to the club.</h2>
-          <h4>You are officially In ✔</h4>
-          <p style="margin-bottom: 30px;">Please enter the sign up OTP to get started</p>
+          <h2>Welcome to the Gates of Foodora.</h2>
+          <h4>You are About to be a Member </h4>
+          <p style="margin-bottom: 30px;">Please enter this sign up OTP to get started</p>
           <h1 style="font-size: 40px; letter-spacing: 2px; text-align:center;">${user.otp}</h1>
      </div>
       `,
@@ -172,6 +149,29 @@ const userCtrl = {
       const user = await UserModel.findOne({ email });
       if (!user) throw new Error("No user found!");
       if(user.otp == otp){
+        const mailoptions={
+          from:"foodorafoodservice@gmail.com",
+          to:email,
+          subject:"Dear Customer, sign up to your foodora account is successfull !",
+          html: `
+        <div
+          class="container"
+          style="max-width: 90%; margin: auto; padding-top: 20px"
+        >
+          <h2>Welcome to the club. ${user.username}</h2>
+          <h4>You are officially In ✔</h4>
+          <p style="margin-bottom: 30px;">"We are really happy to welcome you to our growing family of food lovers. Thank you for showing your interest in our services."</p>
+     </div>
+      `,
+        }
+        transporter.sendMail(mailoptions,(err,info)=>{
+        if(err){
+            console.log(err);
+          }
+          else{
+            console.log("mail sent");
+          }
+        })
         res.status(200).json({
           success: true,
           msg: "user verified",
@@ -182,7 +182,7 @@ const userCtrl = {
 
     
     catch (error) {
-      res.status(400).json({ success: false, msg: "mail send failed!" });
+      res.status(400).json({ success: false, msg: "verification error" });
       console.log(error);
     }
 
