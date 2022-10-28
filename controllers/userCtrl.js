@@ -96,8 +96,8 @@ const userCtrl = {
       res.status(200).json({
         success: true,
         msg: "Login successful",
-        refreshtoken,
-        accesstoken
+        // refreshtoken,
+        // accesstoken
       });
     } catch (error) {
       if(passw==1){
@@ -114,8 +114,9 @@ const userCtrl = {
   logout: async (req, res) => {
     try {
       res.clearCookie("refreshtoken",{path:'/user/refresh_token'})
-      return res.json({msg:"Logged Out"})
-    } catch (err) {
+      return res.json({msg:"Logged Out successfully"})
+    } 
+    catch (err) {
       return res.status(500).json({ msg: err.message });
     }
   },
