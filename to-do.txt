@@ -1,0 +1,5 @@
+otp expiry
+forgot password
+regex
+jwt
+get mail from header using token for otp verification

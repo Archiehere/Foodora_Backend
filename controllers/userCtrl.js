@@ -1,23 +1,22 @@
 const UserModel = require("../models/userModel");
+const otpModel = require("../models/otpModel");
 const bcrypt = require("bcrypt");
-const nodemailer=require("nodemailer");
+const nodemailer = require("nodemailer");
 const e = require("express");
-const otpGenerator = require('otp-generator')
+const otpGenerator = require("otp-generator");
 
-
-const transporter=nodemailer.createTransport({
-    service:"gmail",
-    auth:{
-        user:"foodorafoodservice@gmail.com",
-        pass:"eysfgrqlyxuxzbsm"
-    }
-})
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: "foodorafoodservice@gmail.com",
+    pass: "eysfgrqlyxuxzbsm",
+  },
+});
 const userCtrl = {
   register: async (req, res) => {
     try {
-      let { username, email, password } =
-        req.body;
-        email=email.toLowerCase();
+      let { username, email, password } = req.body;
+      email = email.toLowerCase();
       const users = await UserModel.findOne({ email });
       if (!users) {
         // if (password !== cpassword) {
@@ -31,17 +30,26 @@ const userCtrl = {
           username,
           email,
           password: passwordHash,
-          verify:false,
+          verify: false,
         });
         await user.save();
-        user.otp = otpGenerator.generate(6, { upperCaseAlphabets: false, specialChars: false });
-        await user.save();
 
-      const mailoptions={
-        from:"foodorafoodservice@gmail.com",
-        to:email,
-        subject:"Foodora Verification OTP",
-        html: `
+        const userotp = otpModel({
+          createdAt: new Date(),
+          email,
+        });
+
+        userotp.otp = otpGenerator.generate(6, {
+          upperCaseAlphabets: false,
+          specialChars: false,
+        });
+        await userotp.save();
+
+        const mailoptions = {
+          from: "foodorafoodservice@gmail.com",
+          to: email,
+          subject: "Foodora Verification OTP",
+          html: `
         <div
           class="container"
           style="max-width: 90%; margin: auto; padding-top: 20px"
@@ -49,15 +57,14 @@ const userCtrl = {
           <h2>Welcome to the Gates of Foodora.</h2>
           <h4>You are About to be a Member </h4>
           <p style="margin-bottom: 30px;">Please enter this sign up OTP to get started</p>
-          <h1 style="font-size: 40px; letter-spacing: 2px; text-align:center;">${user.otp}</h1>
+          <h1 style="font-size: 40px; letter-spacing: 2px; text-align:center;">${userotp.otp}</h1>
      </div>
       `,
-      }
-      transporter.sendMail(mailoptions,(err,info)=>{
-        if(err){
+        };
+        transporter.sendMail(mailoptions, (err, info) => {
+          if (err) {
             console.log(err);
-          }
-          else{
+          } else {
             console.log("mail sent");
           }
         });
@@ -65,10 +72,8 @@ const userCtrl = {
           success: true,
           msg: "OTP sent",
         });
-        
-      } 
-      else {
-        res.status(400).json({ success: false, msg: "User already exists!" }); 
+      } else {
+        res.status(400).json({ success: false, msg: "User already exists!" });
       }
     } catch (error) {
       res.status(400).json({ success: false, msg: error.message });
@@ -89,10 +94,10 @@ const userCtrl = {
       const { email, password } = req.body;
       const user = await UserModel.findOne({ email });
       if (!user) throw new Error("No user found!");
-      if(!user.verify) throw new Error("User Not Verified");
+      if (!user.verify) throw new Error("User Not Verified");
       const result = await bcrypt.compare(password, user.password);
       if (!result) throw new Error("Invalid credentials!");
-      
+
       res.status(200).json({
         success: true,
         msg: "Login successful",
@@ -102,21 +107,37 @@ const userCtrl = {
       console.log(error);
     }
   },
-  sendOTP : async (req,res) =>{
+  sendOTP: async (req, res) => {
     try {
       // console.log(req.route.path);
-      const{email} = req.body;
-      
-      const user = await UserModel.findOne({ email });
-      if (!user) throw new Error("No user found!");
-      if(user.verify) throw new Error("User already verified");
-      user.otp = otpGenerator.generate(6, { upperCaseAlphabets: false, specialChars: false });
-      user.save();
+      const { email } = req.body;
 
-      const mailoptions={
-        from:"foodorafoodservice@gmail.com",
-        to:email,
-        subject:"Foodora Verification OTP",
+      const user = await UserModel.findOne({ email });
+      const userotp = await otpModel.findOne({ email });
+      if (!userotp) {
+        const userotp = otpModel({
+          createdAt: new Date(),
+          email,
+        });
+        await userotp.save();
+        userotp.otp = otpGenerator.generate(6, {
+          upperCaseAlphabets: false,
+          specialChars: false,
+        });
+        await userotp.save();
+      }
+      if (!user) throw new Error("No user found!");
+      if (user.verify) throw new Error("User already verified");
+      userotp.otp = otpGenerator.generate(6, {
+        upperCaseAlphabets: false,
+        specialChars: false,
+      });
+      userotp.save();
+
+      const mailoptions = {
+        from: "foodorafoodservice@gmail.com",
+        to: email,
+        subject: "Foodora Verification OTP",
         html: `
         <div
           class="container"
@@ -125,39 +146,30 @@ const userCtrl = {
           <h2>Welcome to the Gates of Foodora.</h2>
           <h4>You are About to be a Member </h4>
           <p style="margin-bottom: 30px;">Please enter this sign up OTP to get started</p>
-          <h1 style="font-size: 40px; letter-spacing: 2px; text-align:center;">${user.otp}</h1>
+          <h1 style="font-size: 40px; letter-spacing: 2px; text-align:center;">${userotp.otp}</h1>
      </div>
       `,
-      }
-      transporter.sendMail(mailoptions,(err,info)=>{
-        if(err){
-            console.log(err);
-          }
-          else{
-            console.log("mail sent");
-          }
-        });
+      };
+      transporter.sendMail(mailoptions, (err, info) => {
+        if (err) {
+          console.log(err);
+          throw new Error("Mail not sent");
+        } else {
+          console.log("mail sent");
+        }
+      });
 
-        res.status(200).json({
-          success: true,
-          msg: "mail sent",
-        });
-    } 
-
-    
-    catch (error) {
+      res.status(200).json({
+        success: true,
+        msg: "mail sent",
+      });
+    } catch (error) {
       res.status(400).json({ success: false, msg: error.message });
       console.log(error);
     }
-
-
-
-
   },
-  forgot : async (req,res) =>{
+  forgot: async (req, res) => {
     try {
-      
-
       res.status(200).json({
         success: true,
         msg: "Login successful",
@@ -166,78 +178,51 @@ const userCtrl = {
       res.status(400).json({ success: false, msg: error.message });
       console.log(error);
     }
-
-
-
-
   },
-  verify : async (req,res) =>{
+  verify: async (req, res) => {
     try {
       // console.log(req.route.path);
-      const{email,otp} = req.body;
+      const { email, otp } = req.body;
       const user = await UserModel.findOne({ email });
+      const userotp = await otpModel.findOne({ email });
+      if (!userotp) throw new Error("OTP timed out.");
       if (!user) throw new Error("No user found!");
-      if(user.verify) throw new Error("User already verified");
-      if(user.otp == otp){
-        user.verify=true;
+      if (user.verify) throw new Error("User already verified");
+      if (userotp.otp == otp) {
+        user.verify = true;
         user.save();
-        const mailoptions={
-          from:"foodorafoodservice@gmail.com",
-          to:email,
-          subject:"Dear Customer, sign up to your foodora account is successfull !",
+        const mailoptions = {
+          from: "foodorafoodservice@gmail.com",
+          to: email,
+          subject:
+            "Dear Customer, sign up to your foodora account is successfull !",
           html: `
         <div
           class="container"
-          style="max-width: 90%; margin: auto; padding-top: 20px; color: blue;"
+          style="max-width: 90%; margin: auto; padding-top: 20px; "
         >
           <h2>Welcome to the club. ${user.username}</h2>
           <h4>You are hereby declared a member of Foodora.</h4>
-          <p style="margin-bottom: 30px;">"We are really happy to welcome you to our growing family of food lovers. Thank you for showing your interest in our services."</p>
+          <p style="margin-bottom: 30px;">We are really happy to welcome you to our growing family of food lovers. Thank you for showing your interest in our services.</p>
      </div>
       `,
-        }
-        transporter.sendMail(mailoptions,(err,info)=>{
-        if(err){
+        };
+        transporter.sendMail(mailoptions, (err, info) => {
+          if (err) {
             console.log(err);
-          }
-          else{
+          } else {
             console.log("mail sent");
           }
-        })
+        });
         res.status(200).json({
           success: true,
           msg: "user verified",
-        });}
-        else
-        res.status(400).json({ success: false, msg: "OTP incorrect" });
-    } 
-
-    
-    catch (error) {
-      res.status(400).json({ success: false, msg: error.message });
-      console.log(error);
-    }
-
-
-
-
-  },
-  forgot : async (req,res) =>{
-    try {
-      
-
-      res.status(200).json({
-        success: true,
-        msg: "Login successful",
-      });
+        });
+      } else res.status(400).json({ success: false, msg: "OTP incorrect" });
     } catch (error) {
       res.status(400).json({ success: false, msg: error.message });
       console.log(error);
     }
-
-
-
-
   },
 };
 module.exports = userCtrl;
