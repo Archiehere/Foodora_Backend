@@ -2,6 +2,7 @@ const UserModel = require("../models/userModel");
 const bcrypt = require("bcrypt");
 const nodemailer=require("nodemailer");
 const e = require("express");
+const jwt = require("jsonwebtoken");
 const otpGenerator = require('otp-generator')
 
 
@@ -33,6 +34,14 @@ const userCtrl = {
           password: passwordHash,
         });
         await user.save();
+        const accesstoken = createAccessToken({ id: user._id });
+        const refreshtoken = createRefreshToken({ id: user._id });
+
+        res.cookie("refreshtoken", refreshtoken, {
+          httpOnly: true,
+          path: "/user/refresh_token",
+          maxAge: 7 * 24 * 60 * 60 * 1000, //7d
+        });
 
         res.status(200).json({
           success: true,
@@ -73,10 +82,22 @@ const userCtrl = {
          passw=1;
          throw new Error("Invalid credentials!");
       }
+
+      const accesstoken = createAccessToken({ id: user._id });
+      const refreshtoken = createRefreshToken({ id: user._id });
+
+      res.cookie("refreshtoken", refreshtoken, {
+        httpOnly: true,
+        path: "/user/refresh_token",
+        maxAge: 7 * 24 * 60 * 60 * 1000, //7d
+      });
+
       
       res.status(200).json({
         success: true,
         msg: "Login successful",
+        refreshtoken,
+        accesstoken
       });
     } catch (error) {
       if(passw==1){
@@ -89,6 +110,14 @@ const userCtrl = {
         }
     }
     
+  },
+  logout: async (req, res) => {
+    try {
+      res.clearCookie("refreshtoken",{path:'/user/refresh_token'})
+      return res.json({msg:"Logged Out"})
+    } catch (err) {
+      return res.status(500).json({ msg: err.message });
+    }
   },
   sendOTP : async (req,res) =>{
     try {
@@ -223,5 +252,12 @@ const userCtrl = {
 
 
   },
+};
+const createAccessToken = (user) => {
+  return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "11m" });
+};
+
+const createRefreshToken = (user) => {
+  return jwt.sign(user, process.env.REFRESH_TOKEN_SECRET, { expiresIn: "7d" });
 };
 module.exports = userCtrl;
