@@ -4,12 +4,12 @@ const bcrypt = require("bcrypt");
 const nodemailer = require("nodemailer");
 const e = require("express");
 const otpGenerator = require("otp-generator");
-
+require('dotenv').config();
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
     user: "foodorafoodservice@gmail.com",
-    pass: "eysfgrqlyxuxzbsm",
+    pass: process.env.password,
   },
 });
 const userCtrl = {
@@ -42,6 +42,7 @@ const userCtrl = {
         userotp.otp = otpGenerator.generate(6, {
           upperCaseAlphabets: false,
           specialChars: false,
+          lowerCaseAlphabets: false,
         });
         await userotp.save();
 
@@ -118,11 +119,13 @@ const userCtrl = {
         const userotp = otpModel({
           createdAt: new Date(),
           email,
+          otp: null,
         });
         await userotp.save();
         userotp.otp = otpGenerator.generate(6, {
           upperCaseAlphabets: false,
           specialChars: false,
+          lowerCaseAlphabets: false,
         });
         await userotp.save();
       }
@@ -131,6 +134,7 @@ const userCtrl = {
       userotp.otp = otpGenerator.generate(6, {
         upperCaseAlphabets: false,
         specialChars: false,
+        lowerCaseAlphabets: false,
       });
       userotp.save();
 
@@ -173,23 +177,29 @@ const userCtrl = {
       const { email } = req.body;
 
       const user = await UserModel.findOne({ email });
-      const userotp = await otpModel.findOne({ email });
+       const userotp = await otpModel.findOne({ email });
+       
+       if(userotp && userotp.verify) throw Error("User Already Verified")
+      //  userotp.deleteOne();
+      otpModel.deleteOne({ email });
       if(!user) throw new Error("User does not exist");
       if(!user.verify) throw new Error("User Not verified.");
-      if(userotp) throw new Error("New users cannot reset password immediately.Wait for 10 minutes.");
+      // if(userotp) throw new Error("New users cannot reset password immediately.");
       // if(userotp.verify) throw new Error("Forgot password verification already completed")
-      if(!userotp){
-      const userotp = otpModel({
+      // if(!userotp){
+      userotpnew = otpModel({
         createdAt: new Date(),
         email,
         verify:false,
       });
-      await userotp.save();
-      userotp.otp = otpGenerator.generate(6, {
+      await userotpnew.save();
+      userotpnew.otp = otpGenerator.generate(6, {
         upperCaseAlphabets: false,
         specialChars: false,
+        lowerCaseAlphabets: false,
       });
-      await userotp.save();}
+      await userotpnew.save();
+    // }
       const mailoptions = {
         from: "foodorafoodservice@gmail.com",
         to: email,
@@ -202,7 +212,7 @@ const userCtrl = {
           <h2>Welcome to the Gates of Foodora.</h2>
           <h4>Forgot Password? </h4>
           <p style="margin-bottom: 30px;">Please enter this OTP to Reset Password</p>
-          <h1 style="font-size: 40px; letter-spacing: 2px; text-align:center;">${userotp.otp}</h1>
+          <h1 style="font-size: 40px; letter-spacing: 2px; text-align:center;">${userotpnew.otp}</h1>
      </div>
       `,
       };
@@ -225,26 +235,55 @@ const userCtrl = {
   },
   forgotverify: async (req, res) => {
     try {
-
-      res.status(200).json({
-        success: true,
-        msg: "Login successful",
-      });
+      // console.log(req.route.path);
+      const { email, otp } = req.body;
+      const user = await UserModel.findOne({ email });
+      const userotp = await otpModel.findOne({ email });
+      if (!userotp) throw new Error("OTP timed out.");
+      if (!user) throw new Error("No user found!");
+      if (userotp.verify) throw new Error("User already verified");
+      if (userotp.otp == otp) {
+        userotp.verify = true;
+        userotp.save();
+        
+        res.status(200).json({
+          success: true,
+          msg: "user verified",
+        });
+      } else res.status(400).json({ success: false, msg: "OTP incorrect" });
     } catch (error) {
       res.status(400).json({ success: false, msg: error.message });
       console.log(error);
-    }
-  },
+  }
+},
   resetpass: async (req, res) => {
     try {
-      res.status(200).json({
-        success: true,
-        msg: "Login successful",
-      });
+      // console.log(req.route.path);
+      const { email, password } = req.body;
+      const user = await UserModel.findOne({ email });
+      const userotp = await otpModel.findOne({ email });
+      if (!userotp) throw new Error("Verification Timed OUT");
+      if (!user) throw new Error("No user found!");
+      
+      if (userotp.verify == true) {
+        
+        const result = await bcrypt.compare(password, user.password);
+        if(result) throw new Error("Please Change to new Password");
+        const passwordHash = await bcrypt.hash(password, 12);
+        user.password = passwordHash;
+        user.save();
+        userotp.verify=false;
+        userotp.save();
+        
+        res.status(200).json({
+          success: true,
+          msg: "password changed successfully",
+        });
+      } else res.status(400).json({ success: false, msg: "OTP verification Incomplete" });
     } catch (error) {
       res.status(400).json({ success: false, msg: error.message });
       console.log(error);
-    }
+  }
   },
   verify: async (req, res) => {
     try {
