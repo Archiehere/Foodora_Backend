@@ -46,6 +46,7 @@ const userCtrl = {
         res.status(200).json({
           success: true,
           msg: "Registration successful",
+          accesstoken
         });
         
       } 
@@ -91,13 +92,14 @@ const userCtrl = {
         path: "/user/refresh_token",
         maxAge: 7 * 24 * 60 * 60 * 1000, //7d
       });
+      
 
       
       res.status(200).json({
         success: true,
         msg: "Login successful",
-        // refreshtoken,
-        // accesstoken
+        accesstoken
+        
       });
     } catch (error) {
       if(passw==1){
@@ -252,6 +254,23 @@ const userCtrl = {
 
 
 
+  },
+  refreshToken: (req, res) => {
+    try {
+      const rf_token = req.cookies.refreshtoken;
+      if (!rf_token)
+        return res.status(400).json({ msg: "Please Login or Register" });
+
+      jwt.verify(rf_token, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
+        if (err) return res.status(400).json({ msg: "Please Login or Register" });
+
+        const accesstoken = createAccessToken({ id: user.id });
+
+        res.json({ accesstoken });
+      });
+    } catch (err) {
+      return res.status(500).json({ msg: err.message });
+    }
   },
 };
 const createAccessToken = (user) => {
