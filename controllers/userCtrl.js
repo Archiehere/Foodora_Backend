@@ -120,6 +120,7 @@ const userCtrl = {
           createdAt: new Date(),
           email,
           otp: null,
+        
         });
         await userotp.save();
         userotp.otp = otpGenerator.generate(6, {
@@ -136,7 +137,7 @@ const userCtrl = {
         specialChars: false,
         lowerCaseAlphabets: false,
       });
-      userotp.save();
+      await userotp.save();
 
       const mailoptions = {
         from: "foodorafoodservice@gmail.com",
@@ -181,25 +182,31 @@ const userCtrl = {
        
        if(userotp && userotp.verify) throw Error("User Already Verified")
       //  userotp.deleteOne();
-      otpModel.deleteOne({ email });
+      // otpModel.deleteOne({ email });
       if(!user) throw new Error("User does not exist");
       if(!user.verify) throw new Error("User Not verified.");
-      // if(userotp) throw new Error("New users cannot reset password immediately.");
+      
       // if(userotp.verify) throw new Error("Forgot password verification already completed")
-      // if(!userotp){
-      userotpnew = otpModel({
+      if(!userotp){
+      const userotp = otpModel({
         createdAt: new Date(),
         email,
         verify:false,
       });
-      await userotpnew.save();
+      await userotp.save();
       userotpnew.otp = otpGenerator.generate(6, {
         upperCaseAlphabets: false,
         specialChars: false,
         lowerCaseAlphabets: false,
       });
-      await userotpnew.save();
-    // }
+      await userotp.save();
+    }
+    userotp.otp = otpGenerator.generate(6, {
+      upperCaseAlphabets: false,
+      specialChars: false,
+      lowerCaseAlphabets: false,
+    });
+    await userotp.save();
       const mailoptions = {
         from: "foodorafoodservice@gmail.com",
         to: email,
@@ -212,7 +219,7 @@ const userCtrl = {
           <h2>Welcome to the Gates of Foodora.</h2>
           <h4>Forgot Password? </h4>
           <p style="margin-bottom: 30px;">Please enter this OTP to Reset Password</p>
-          <h1 style="font-size: 40px; letter-spacing: 2px; text-align:center;">${userotpnew.otp}</h1>
+          <h1 style="font-size: 40px; letter-spacing: 2px; text-align:center;">${userotp.otp}</h1>
      </div>
       `,
       };
@@ -244,6 +251,7 @@ const userCtrl = {
       if (userotp.verify) throw new Error("User already verified");
       if (userotp.otp == otp) {
         userotp.verify = true;
+        userotp.otp=null;
         userotp.save();
         
         res.status(200).json({
@@ -297,6 +305,8 @@ const userCtrl = {
       if (userotp.otp == otp) {
         user.verify = true;
         user.save();
+        userotp.otp=null;
+        userotp.save();
         const mailoptions = {
           from: "foodorafoodservice@gmail.com",
           to: email,
