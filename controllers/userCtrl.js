@@ -168,7 +168,74 @@ const userCtrl = {
       console.log(error);
     }
   },
-  forgot: async (req, res) => {
+  forgotsendOTP: async (req, res) => {
+    try {
+      const { email } = req.body;
+
+      const user = await UserModel.findOne({ email });
+      const userotp = await otpModel.findOne({ email });
+      if(!user) throw new Error("User does not exist");
+      if(!user.verify) throw new Error("User Not verified.");
+      if(userotp) throw new Error("New users cannot reset password immediately.Wait for 10 minutes.");
+      // if(userotp.verify) throw new Error("Forgot password verification already completed")
+      if(!userotp){
+      const userotp = otpModel({
+        createdAt: new Date(),
+        email,
+        verify:false,
+      });
+      await userotp.save();
+      userotp.otp = otpGenerator.generate(6, {
+        upperCaseAlphabets: false,
+        specialChars: false,
+      });
+      await userotp.save();}
+      const mailoptions = {
+        from: "foodorafoodservice@gmail.com",
+        to: email,
+        subject: "Foodora Verification OTP",
+        html: `
+        <div
+          class="container"
+          style="max-width: 90%; margin: auto; padding-top: 20px"
+        >
+          <h2>Welcome to the Gates of Foodora.</h2>
+          <h4>Forgot Password? </h4>
+          <p style="margin-bottom: 30px;">Please enter this OTP to Reset Password</p>
+          <h1 style="font-size: 40px; letter-spacing: 2px; text-align:center;">${userotp.otp}</h1>
+     </div>
+      `,
+      };
+      transporter.sendMail(mailoptions, (err, info) => {
+        if (err) {
+          console.log(err);
+          throw new Error("Mail not sent");
+        } else {
+          console.log("mail sent");
+        }
+      });
+      res.status(200).json({
+        success: true,
+        msg: "mail sent",
+      });
+    } catch (error) {
+      res.status(400).json({ success: false, msg: error.message });
+      console.log(error);
+    }
+  },
+  forgotverify: async (req, res) => {
+    try {
+
+      res.status(200).json({
+        success: true,
+        msg: "Login successful",
+      });
+    } catch (error) {
+      res.status(400).json({ success: false, msg: error.message });
+      console.log(error);
+    }
+  },
+  resetpass: async (req, res) => {
     try {
       res.status(200).json({
         success: true,

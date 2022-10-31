@@ -1,4 +1,3 @@
-otp expiry
 forgot password
 regex
 jwt
