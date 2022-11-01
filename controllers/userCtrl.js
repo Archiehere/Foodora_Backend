@@ -2,6 +2,7 @@ const UserModel = require("../models/userModel");
 const otpModel = require("../models/otpModel");
 const bcrypt = require("bcrypt");
 const nodemailer = require("nodemailer");
+const jwt = require("jsonwebtoken");
 const e = require("express");
 const otpGenerator = require("otp-generator");
 require("dotenv").config();
@@ -69,10 +70,23 @@ const userCtrl = {
             console.log("mail sent");
           }
         });
+
+
+        const accesstoken = createAccessToken({ id: user._id });
+        const refreshtoken = createRefreshToken({ id: user._id });
+
+        res.cookie("refreshtoken", refreshtoken, {
+          httpOnly: true,
+          path: "/user/refresh_token",
+          maxAge: 7 * 24 * 60 * 60 * 1000, //7d
+        });
         res.status(200).json({
           success: true,
           msg: "OTP sent",
+          accesstoken
         });
+
+
       } else {
         res.status(400).json({ success: false, msg: "User already exists!" });
       }
@@ -99,9 +113,21 @@ const userCtrl = {
       const result = await bcrypt.compare(password, user.password);
       if (!result) throw new Error("Invalid credentials!");
 
+
+      const accesstoken = createAccessToken({ id: user._id });
+      const refreshtoken = createRefreshToken({ id: user._id });
+
+      res.cookie("refreshtoken", refreshtoken, {
+        httpOnly: true,
+        path: "/user/refresh_token",
+        maxAge: 7 * 24 * 60 * 60 * 1000, //7d
+      });
+      
+
       res.status(200).json({
         success: true,
         msg: "Login successful",
+        accesstoken
       });
     } catch (error) {
       res.status(400).json({ success: false, msg: error.message });
@@ -186,7 +212,7 @@ const userCtrl = {
       if (!user.verify) throw new Error("User Not verified.");
 
       // if(userotp.verify) throw new Error("Forgot password verification already completed")
-      let userotp;
+      let userotp,users;
       if (!userotpold) {
         userotp = otpModel({
           createdAt: new Date(),
@@ -201,13 +227,16 @@ const userCtrl = {
           lowerCaseAlphabets: false,
         });
         await userotp.save();
+        users=userotp;
       } else {
-        userotp.otp = otpGenerator.generate(6, {
+        // console.log(userotp);
+        userotpold.otp = otpGenerator.generate(6, {
           upperCaseAlphabets: false,
           specialChars: false,
           lowerCaseAlphabets: false,
         });
-        await userotp.save();
+        await userotpold.save();
+        users=userotpold;
       }
       const mailoptions = {
         from: "foodorafoodservice@gmail.com",
@@ -221,7 +250,7 @@ const userCtrl = {
           <h2>Welcome to the Gates of Foodora.</h2>
           <h4>Forgot Password? </h4>
           <p style="margin-bottom: 30px;">Please enter this OTP to Reset Password</p>
-          <h1 style="font-size: 40px; letter-spacing: 2px; text-align:center;">${userotp.otp}</h1>
+          <h1 style="font-size: 40px; letter-spacing: 2px; text-align:center;">${users.otp}</h1>
      </div>
       `,
       };
@@ -344,5 +373,45 @@ const userCtrl = {
       console.log(error);
     }
   },
+
+
+  refreshToken: (req, res) => {
+    try {
+      const rf_token = req.cookies.refreshtoken;
+      if (!rf_token)
+        return res.status(400).json({ msg: "Please Login or Register" });
+
+      jwt.verify(rf_token, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
+        if (err) return res.status(400).json({ msg: "Please Login or Register" });
+
+        const accesstoken = createAccessToken({ id: user.id });
+
+        res.json({ accesstoken });
+      });
+    } catch (err) {
+      return res.status(500).json({ msg: err.message });
+    }
+  },
+  logout: async (req, res) => {
+    try {
+      res.clearCookie("refreshtoken",{path:'/user/refresh_token'})
+      return res.json({msg:"Logged Out"})
+    } catch (err) {
+      return res.status(500).json({ msg: err.message });
+    }
+  },
+
+
 };
+
+
+const createAccessToken = (user) => {
+  return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "11m" });
+};
+
+const createRefreshToken = (user) => {
+  return jwt.sign(user, process.env.REFRESH_TOKEN_SECRET, { expiresIn: "7d" });
+};
+
+
 module.exports = userCtrl;
