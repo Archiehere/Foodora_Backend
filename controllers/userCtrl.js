@@ -4,7 +4,7 @@ const bcrypt = require("bcrypt");
 const nodemailer = require("nodemailer");
 const e = require("express");
 const otpGenerator = require("otp-generator");
-require('dotenv').config();
+require("dotenv").config();
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
@@ -120,7 +120,6 @@ const userCtrl = {
           createdAt: new Date(),
           email,
           otp: null,
-        
         });
         await userotp.save();
         userotp.otp = otpGenerator.generate(6, {
@@ -178,35 +177,38 @@ const userCtrl = {
       const { email } = req.body;
 
       const user = await UserModel.findOne({ email });
-       const userotp = await otpModel.findOne({ email });
-       
-       if(userotp && userotp.verify) throw Error("User Already Verified")
+      const userotpold = await otpModel.findOne({ email });
+
+      if (userotpold && userotpold.verify) throw Error("User Already Verified");
       //  userotp.deleteOne();
       // otpModel.deleteOne({ email });
-      if(!user) throw new Error("User does not exist");
-      if(!user.verify) throw new Error("User Not verified.");
-      
+      if (!user) throw new Error("User does not exist");
+      if (!user.verify) throw new Error("User Not verified.");
+
       // if(userotp.verify) throw new Error("Forgot password verification already completed")
-      if(!userotp){
-      const userotp = otpModel({
-        createdAt: new Date(),
-        email,
-        verify:false,
-      });
-      await userotp.save();
-      userotpnew.otp = otpGenerator.generate(6, {
-        upperCaseAlphabets: false,
-        specialChars: false,
-        lowerCaseAlphabets: false,
-      });
-      await userotp.save();
-    }
-    userotp.otp = otpGenerator.generate(6, {
-      upperCaseAlphabets: false,
-      specialChars: false,
-      lowerCaseAlphabets: false,
-    });
-    await userotp.save();
+      let userotp;
+      if (!userotpold) {
+        userotp = otpModel({
+          createdAt: new Date(),
+          email,
+          verify: false,
+          // otp: null,
+        });
+        await userotp.save();
+        userotp.otp = otpGenerator.generate(6, {
+          upperCaseAlphabets: false,
+          specialChars: false,
+          lowerCaseAlphabets: false,
+        });
+        await userotp.save();
+      } else {
+        userotp.otp = otpGenerator.generate(6, {
+          upperCaseAlphabets: false,
+          specialChars: false,
+          lowerCaseAlphabets: false,
+        });
+        await userotp.save();
+      }
       const mailoptions = {
         from: "foodorafoodservice@gmail.com",
         to: email,
@@ -251,9 +253,9 @@ const userCtrl = {
       if (userotp.verify) throw new Error("User already verified");
       if (userotp.otp == otp) {
         userotp.verify = true;
-        userotp.otp=null;
+        userotp.otp = null;
         userotp.save();
-        
+
         res.status(200).json({
           success: true,
           msg: "user verified",
@@ -262,8 +264,8 @@ const userCtrl = {
     } catch (error) {
       res.status(400).json({ success: false, msg: error.message });
       console.log(error);
-  }
-},
+    }
+  },
   resetpass: async (req, res) => {
     try {
       // console.log(req.route.path);
@@ -272,26 +274,28 @@ const userCtrl = {
       const userotp = await otpModel.findOne({ email });
       if (!userotp) throw new Error("Verification Timed OUT");
       if (!user) throw new Error("No user found!");
-      
+
       if (userotp.verify == true) {
-        
         const result = await bcrypt.compare(password, user.password);
-        if(result) throw new Error("Please Change to new Password");
+        if (result) throw new Error("Please Change to new Password");
         const passwordHash = await bcrypt.hash(password, 12);
         user.password = passwordHash;
         user.save();
-        userotp.verify=false;
+        userotp.verify = false;
         userotp.save();
-        
+
         res.status(200).json({
           success: true,
           msg: "password changed successfully",
         });
-      } else res.status(400).json({ success: false, msg: "OTP verification Incomplete" });
+      } else
+        res
+          .status(400)
+          .json({ success: false, msg: "OTP verification Incomplete" });
     } catch (error) {
       res.status(400).json({ success: false, msg: error.message });
       console.log(error);
-  }
+    }
   },
   verify: async (req, res) => {
     try {
@@ -305,7 +309,7 @@ const userCtrl = {
       if (userotp.otp == otp) {
         user.verify = true;
         user.save();
-        userotp.otp=null;
+        userotp.otp = null;
         userotp.save();
         const mailoptions = {
           from: "foodorafoodservice@gmail.com",
