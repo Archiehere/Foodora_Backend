@@ -14,6 +14,7 @@ app.use(express.json());
 app.use(CookieParser());
 
 app.use('/user',require('./router/userRouter'));
+app.use('/sellerrestaurant',require('./router/foodRouter'));
 app.get('/',(req,res)=>{
   res.send("Welcome to home screen");
 });
