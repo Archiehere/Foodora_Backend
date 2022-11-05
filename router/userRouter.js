@@ -16,5 +16,6 @@ router.post('/forgot/reset',userCtrl.resetpass);
 router.post('/logout',userCtrl.logout);
 router.get("/refresh_token", userCtrl.refreshToken);
 router.post('/forgot',userCtrl.verify);
+router.get("/userprofile",userCtrl.userprofile);
 
 module.exports = router;

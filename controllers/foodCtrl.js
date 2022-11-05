@@ -1,6 +1,17 @@
 const foodModel=require("../models/foodModel");
 
+// const multer=require("multer");
 
+// const Storage=multer.diskStorage({
+//     destination:"uploads",
+//     filename:(req,file,cb)=>{
+//         cb(null,file.originalname);
+//     },
+// });
+
+// const upload=multer({
+//     storage:Storage
+// }).single('testImage')
 
 const foodCtrl={
     register:async(req,res)=>{
@@ -47,7 +58,16 @@ const foodCtrl={
     },
     listfooditems:async(req,res)=>{
         try{
+            // // const{foodname,food_price,food_desc,id}=req.body;
+            // const food_image;
+            // const food_image= new food_image({
+            //     data:req.body.data,
+            //     contentType:'image/png'
+
+            // })
+
             const{foodname,food_price,food_desc,id}=req.body;
+             
             if(!id)throw new Error("login or register !");
             const restaurant=await foodModel.findById(id);
             if(!restaurant)throw new Error("no such restaurant found !");
@@ -69,6 +89,34 @@ const foodCtrl={
             res.status(400).json({ success: false, msg: error.message });
             console.log(error);
         }
-    }
+    },
+    sellerprofile:async(req,res)=>{
+        try{
+          const id=req.body;
+          console.log(id);
+          if(!id)throw new Error("No user exists !")
+          const sellerDetails=await foodModel.findById(id);
+          const sellername=sellerDetails.sellername
+          const emailid=sellerDetails.email
+          const restaurantname=sellerDetails.restaurantname
+          const restaurantaddress=sellerDetails.restaurantaddress
+          const restaurantdesc=sellerDetails.restaurantdesc
+            
+          res.status(200).json({
+            success: true,
+            msg: "seller details sent successfully !",
+            sellername,
+            emailid,
+            restaurantname,
+            restaurantaddress,
+            restaurantdesc
+    
+          })
+
+        }
+        catch (err){
+            return res.status(400).json({msg:err.message});
+        }
+      }
 }
 module.exports=foodCtrl;
