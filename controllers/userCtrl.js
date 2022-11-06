@@ -401,9 +401,30 @@ const userCtrl = {
       return res.status(500).json({ msg: err.message });
     }
   },
+  userprofile:async(req,res)=>{
+    try{
+      const id=req.body;
+      console.log(id);
+      if(!id)throw new Error("No user exists !")
+      const userDetails=await UserModel.findById(id);
+      const username=userDetails.username
+      const emailid=userDetails.email
+
+      res.status(200).json({
+        success: true,
+        msg: "user details sent successfully !",
+        username,
+        emailid
+
+      })
 
 
-};
+    }
+    catch (err){
+        return res.status(400).json({msg:err.message});
+    }
+  }
+}
 
 
 const createAccessToken = (user) => {
