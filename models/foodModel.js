@@ -1,12 +1,12 @@
 const mongoose=require("mongoose");
 const foodSchema=mongoose.Schema({
-    sellername:{
+    username:{
         type:String,
         required:true,
 
     },
     password:{
-        type:Number,
+        type:String,
         required:true,
 
     },
@@ -39,6 +39,10 @@ const foodSchema=mongoose.Schema({
         type:String,
         default:""
     },
+    verify:{
+        type:Boolean,
+        required:false,
+      },
     food_list:[{
         foodname:{
             type:String,
@@ -61,6 +65,6 @@ const foodSchema=mongoose.Schema({
 
     }],
 });
-const foodModel=mongoose.model("FOOD",foodSchema);
+const foodModel=mongoose.model("SELLER",foodSchema);
 
 module.exports=foodModel;

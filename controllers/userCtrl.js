@@ -157,6 +157,7 @@ const userCtrl = {
       }
       if (!user) throw new Error("No user found!");
       if (user.verify) throw new Error("User already verified");
+      if(userotp){
       userotp.otp = otpGenerator.generate(6, {
         upperCaseAlphabets: false,
         specialChars: false,
@@ -188,7 +189,7 @@ const userCtrl = {
           console.log("mail sent");
         }
       });
-
+    }
       res.status(200).json({
         success: true,
         msg: "mail sent",
