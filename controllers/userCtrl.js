@@ -466,6 +466,14 @@ const userCtrl = {
     catch(err){
       return res.status(400).json({ msg: err.message });
     }
+  },
+  feed:async(req,res)=>{
+    try{
+      
+    }
+    catch(err){
+      return res.status(400).json({ msg: err.message });
+    }
   }
 }
 

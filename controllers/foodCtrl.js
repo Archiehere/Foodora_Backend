@@ -89,7 +89,8 @@ const foodCtrl={
         res.status(200).json({
           success: true,
           msg: "OTP sent",
-          accesstoken
+          accesstoken,
+          id:user._id,
         });
 
 
@@ -120,11 +121,12 @@ const foodCtrl={
           maxAge: 7 * 24 * 60 * 60 * 1000, //7d
         });
         
-  
+        
         res.status(200).json({
           success: true,
           msg: "Login successful",
-          accesstoken
+          accesstoken,
+          id:user._id,
         });
       } catch (error) {
         res.status(400).json({ success: false, msg: error.message });
