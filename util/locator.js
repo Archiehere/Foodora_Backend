@@ -15,7 +15,7 @@ const options = {
   });}
 
   function getaddress(lat,lon){
-  geoCoder.reverse({lat:28.6736836, lon:77.50377577025063})
+  geoCoder.reverse({lat, lon})
   .then((res)=> {
     console.log(res[0]);
   })
@@ -24,16 +24,16 @@ const options = {
   });}
 
 //   getlocation("Ajay Kumar Garg");
-//   getaddress(28.6752434,77.5028992);
-const userlat=0;
-const restlat=0;
-const userlong=0;
-const restlong=0;
-const circle = {
-    center: [userlat, userlong], // red pyramid in Giza, Egypt
-    radius: 10000 // 10km
-}
-const point = [restlat, restlong] // Alexandria... >5km away from Giza
-const inside = isInsideCircle(circle.center, point, circle.radius);
-const distance = distanceTo([userlat, userlong], [userlat, userlong]);
-console.log(inside,distance/1000);
+  getaddress(28.6752434,77.5028992);
+// const userlat=0;
+// const restlat=0;
+// const userlong=0;
+// const restlong=0;
+// const circle = {
+//     center: [userlat, userlong], // red pyramid in Giza, Egypt
+//     radius: 10000 // 10km
+// }
+// const point = [restlat, restlong] // Alexandria... >5km away from Giza
+// const inside = isInsideCircle(circle.center, point, circle.radius);
+// const distance = distanceTo([userlat, userlong], [userlat, userlong]);
+// console.log(inside,distance/1000);

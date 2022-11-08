@@ -3,7 +3,7 @@ const router=require("express").Router();
 const Upload = require('../middleware/upload');
 
 router.post('/register',foodCtrl.register);
-router.post('/restaurantregister',foodCtrl.registerrestaurant);
+router.post('/restaurantregister',Upload.uploadImg.array('image',5),foodCtrl.registerrestaurant);
 router.post('/foodlisting',Upload.uploadImg.single('image'), foodCtrl.listfooditems);
 router.post('/verify/send',foodCtrl.sendOTP);
 router.post('/verify',foodCtrl.verify);

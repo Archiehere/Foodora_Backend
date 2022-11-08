@@ -18,6 +18,7 @@ router.get("/refresh_token", userCtrl.refreshToken);
 // router.post('/forgot',userCtrl.verify);
 router.post("/userprofile",userCtrl.userprofile);
 router.post("/addtocart",userCtrl.addtocart);
+router.post("/location",userCtrl.location);
 router.get("/feed",userCtrl.feed);
 
 module.exports = router;

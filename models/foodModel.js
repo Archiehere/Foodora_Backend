@@ -38,6 +38,9 @@ const foodSchema=mongoose.Schema({
         type:String,
         default:""
     },
+    imgpath:{
+        type:Array,
+    },
     verify:{
         type:Boolean,
         required:false,

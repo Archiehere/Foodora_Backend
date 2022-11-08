@@ -377,8 +377,17 @@ const foodCtrl={
         try{
             const{restaurantname,mobilenumber,restaurantaddress,restaurant_openingtime,restaurant_closingtime,id}=req.body;
 
+            let filepath = [];
+
+            if(req.files !== undefined){
+                for(let i=0;i<req.files.length;i++)
+                filepath[i] = 'uploads/' + req.files[i].filename;
+              
+                // console.log(req.files.length );
+            }
+
             if(!id)throw new Error("login or register !");
-            const result=await sellerModel.findByIdAndUpdate({_id:id},{restaurantname:restaurantname,mobilenumber:mobilenumber,restaurantaddress:restaurantaddress,restaurant_openingtime:restaurant_openingtime,restaurant_closingtime:restaurant_closingtime},{new: true});
+            const result=await sellerModel.findByIdAndUpdate({_id:id},{restaurantname:restaurantname,mobilenumber:mobilenumber,restaurantaddress:restaurantaddress,restaurant_openingtime:restaurant_openingtime,restaurant_closingtime:restaurant_closingtime,imgpath:filepath},{new: true});
             console.log(result);
             
             res.status(200).json({

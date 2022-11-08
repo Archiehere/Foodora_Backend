@@ -3,9 +3,15 @@ const otpModel = require("../models/otpModel");
 const bcrypt = require("bcrypt");
 const nodemailer = require("nodemailer");
 const jwt = require("jsonwebtoken");
+const nodeGeocoder = require('node-geocoder');
+const options = {
+  provider: 'openstreetmap'
+};
+const geoCoder = nodeGeocoder(options);
 const e = require("express");
 const otpGenerator = require("otp-generator");
 const sellerModel = require("../models/foodModel");
+// const locator=require("../util/locator.js");
 require("dotenv").config();
 const transporter = nodemailer.createTransport({
   service: "gmail",
@@ -473,6 +479,30 @@ const userCtrl = {
     }
     catch(err){
       return res.status(400).json({ msg: err.message });
+    }
+  },
+  location:(req,res)=>{
+    try{
+      const{latitude,longitude}=req.body;
+      // console.log(latitude,longitude);
+      
+        geoCoder.reverse({ lat: latitude, lon: longitude})
+        .then((res)=> {
+          address=(res[0].formattedAddress);
+        })
+        .catch((err)=> {
+          console.log(err);
+        });
+
+        res.status(200).json({
+          success: true,
+          msg: "location identified!",
+          address
+  
+        });
+    }
+    catch (err){
+        return res.status(400).json({success:false,msg:"service unavailable"});
     }
   }
 }
