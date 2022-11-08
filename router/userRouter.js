@@ -17,5 +17,6 @@ router.post('/logout',userCtrl.logout);
 router.get("/refresh_token", userCtrl.refreshToken);
 // router.post('/forgot',userCtrl.verify);
 router.post("/userprofile",userCtrl.userprofile);
+router.patch("/addtocart",userCtrl.addtocart);
 
 module.exports = router;

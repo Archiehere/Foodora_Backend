@@ -5,6 +5,7 @@ const nodemailer = require("nodemailer");
 const jwt = require("jsonwebtoken");
 const e = require("express");
 const otpGenerator = require("otp-generator");
+const sellerModel = require("../models/foodModel");
 require("dotenv").config();
 const transporter = nodemailer.createTransport({
   service: "gmail",
@@ -422,6 +423,48 @@ const userCtrl = {
     }
     catch (err){
         return res.status(400).json({msg:err.message});
+    }
+  },
+  addtocart:async(req,res)=>{
+    try{
+      const{seller_id,food_id,user_id}=req.body;
+      const fooddetails=await sellerModel.findById(seller_id);
+      const{food_list}=fooddetails;
+      let cartfoodlist;
+      food_list.forEach(foodlist=>{
+        if(foodlist._id==food_id)
+        {
+          cartfoodlist=foodlist;
+        }
+      })
+      const foodname=cartfoodlist.foodname;
+      const food_price=cartfoodlist.food_price;
+
+      const users=await UserModel.findById(user_id);
+      const {cart}=users;
+      let cartinfotemp=null;
+      cart.forEach(cartinfo=>{
+        if(cartinfo.foodname==foodname)
+        {
+          cartinfotemp=cartinfo;
+        }
+        
+      })
+      console.log(cartinfotemp);
+      if(cartinfotemp!=null)
+      {
+        cartinfotemp.quantity++;
+      }
+      else{
+      var quantity=0
+      const newcart=[...cart,{foodname,food_price,quantity}];
+
+      const result=await UserModel.findByIdAndUpdate({_id:user_id},{cart:newcart},{new: true});
+      console.log(result);
+      }
+    }
+    catch(err){
+      return res.status(400).json({ msg: err.message });
     }
   }
 }
