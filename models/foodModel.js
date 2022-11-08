@@ -21,7 +21,7 @@ const foodSchema=mongoose.Schema({
         default:""
     },
     mobilenumber:{
-        type:Number,
+        type:String,
         unique:true,
         default:""
     },
