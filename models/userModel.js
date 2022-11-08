@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-
+// const foodModel=require("foodModel");
 const userSchema = mongoose.Schema({
   email: {
     type: String,
@@ -22,6 +22,22 @@ const userSchema = mongoose.Schema({
     type:Boolean,
     required:false,
   },
+  cart:[{
+    foodname:{
+        type:String,
+        unique:true,
+    },
+    food_price:{
+
+        type:Number,
+        
+    },
+    quantity:{
+      type:Number,
+      default:null
+    }
+}],
+  
   
   // contact:{
   //   type:String,

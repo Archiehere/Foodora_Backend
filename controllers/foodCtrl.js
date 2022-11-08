@@ -373,10 +373,10 @@ const foodCtrl={
     },
     registerrestaurant:async(req,res)=>{
         try{
-            const{restaurantname,restaurantdesc,id}=req.body;
+            const{restaurantname,mobilenumber,restaurantaddress,restaurant_openingtime,restaurant_closingtime,id}=req.body;
 
             if(!id)throw new Error("login or register !");
-            const result=await foodModel.findByIdAndUpdate({_id:id},{restaurantname:restaurantname,restaurantdesc:restaurantdesc},{new: true});
+            const result=await sellerModel.findByIdAndUpdate({_id:id},{restaurantname:restaurantname,mobilenumber:mobilenumber,restaurantaddress:restaurantaddress,restaurant_openingtime:restaurant_openingtime,restaurant_closingtime:restaurant_closingtime},{new: true});
             console.log(result);
             
             res.status(200).json({
@@ -404,13 +404,13 @@ const foodCtrl={
             const{foodname,food_price,food_desc,id}=req.body;
              
             if(!id)throw new Error("login or register !");
-            const restaurant=await foodModel.findById(id);
+            const restaurant=await sellerModel.findById(id);
             if(!restaurant)throw new Error("no such restaurant found !");
             const {food_list}=restaurant; //check if empty food_list array is obtained or not on first food item entry
 
             const newfoodlist=[...food_list,{foodname,food_price,food_desc}];
 
-            const result=await foodModel.findByIdAndUpdate({_id:id},{food_list:newfoodlist},{new: true});
+            const result=await sellerModel.findByIdAndUpdate({_id:id},{food_list:newfoodlist},{new: true});
             console.log(result);
             
             res.status(200).json({
@@ -430,7 +430,7 @@ const foodCtrl={
           const id=req.body;
           console.log(id);
           if(!id)throw new Error("No user exists !")
-          const sellerDetails=await foodModel.findById(id);
+          const sellerDetails=await sellerModel.findById(id);
           const sellername=sellerDetails.sellername
           const emailid=sellerDetails.email
           const restaurantname=sellerDetails.restaurantname

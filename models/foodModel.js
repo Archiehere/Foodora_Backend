@@ -20,16 +20,15 @@ const foodSchema=mongoose.Schema({
         unique:true,
         default:""
     },
+    mobilenumber:{
+        type:Number,
+        unique:true,
+        default:""
+    },
     restaurantaddress:{
         type:String,
         unique:true,
         default:""
-    },
-    restaurantdesc:{
-        type:String,
-        unique:true,
-        default:""
-
     },
     restaurant_openingtime:{
         type:String,
