@@ -12,6 +12,8 @@ dbconnection();
 
 app.use(express.json());
 app.use(CookieParser());
+app.use(express.static(__dirname + '/public'));
+app.use('/uploads', express.static('uploads'));
 
 app.use('/user',require('./router/userRouter'));
 app.use('/seller',require('./router/foodRouter'));

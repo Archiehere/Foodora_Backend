@@ -58,7 +58,8 @@ const foodSchema=mongoose.Schema({
             type:String,
             
         },
-        food_image:{
+        imgpath:{
+            type:String,
             
             
         }

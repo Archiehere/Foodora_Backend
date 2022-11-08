@@ -402,15 +402,20 @@ const foodCtrl={
             // })
 
             const{foodname,food_price,food_desc,id}=req.body;
+            let filepath = null;
+
+            if(req.file !== undefined){
+                filepath = 'uploads/' + req.file.filename;
+            }
              
             if(!id)throw new Error("login or register !");
-            const restaurant=await foodModel.findById(id);
+            const restaurant=await sellerModel.findById(id);
             if(!restaurant)throw new Error("no such restaurant found !");
             const {food_list}=restaurant; //check if empty food_list array is obtained or not on first food item entry
 
-            const newfoodlist=[...food_list,{foodname,food_price,food_desc}];
+            const newfoodlist=[...food_list,{foodname,food_price,food_desc,imgpath : filepath}];
 
-            const result=await foodModel.findByIdAndUpdate({_id:id},{food_list:newfoodlist},{new: true});
+            const result=await sellerModel.findByIdAndUpdate({_id:id},{food_list:newfoodlist},{new: true});
             console.log(result);
             
             res.status(200).json({
