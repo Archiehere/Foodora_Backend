@@ -5,6 +5,13 @@ const nodemailer = require("nodemailer");
 const jwt = require("jsonwebtoken");
 const e = require("express");
 const otpGenerator = require("otp-generator");
+
+const nodeGeocoder = require('node-geocoder');
+// const { distanceTo, isInsidePolygon, isInsideCircle } = require('geofencer');
+const options = {
+    provider: 'openstreetmap'
+  };
+  const geoCoder = nodeGeocoder(options);
 require("dotenv").config();
 const transporter = nodemailer.createTransport({
   service: "gmail",
@@ -375,8 +382,18 @@ const foodCtrl={
     },
     registerrestaurant:async(req,res)=>{
         try{
+            let currstate;
             const{restaurantname,mobilenumber,restaurantaddress,restaurant_openingtime,restaurant_closingtime,id}=req.body;
-
+           await geoCoder.geocode(restaurantaddress)
+            .then((res)=> {
+             currstate=(res[0].state);
+             currlongitude=(res[0].longitude);
+             currlatitude=(res[0].latitude);
+            })
+            .catch((err)=> {
+              console.log(err);
+            });
+          
             let filepath = [];
 
             if(req.files !== undefined){
@@ -385,9 +402,10 @@ const foodCtrl={
               
                 // console.log(req.files.length );
             }
-
-            if(!id)throw new Error("login or register !");
-            const result=await sellerModel.findByIdAndUpdate({_id:id},{restaurantname:restaurantname,mobilenumber:mobilenumber,restaurantaddress:restaurantaddress,restaurant_openingtime:restaurant_openingtime,restaurant_closingtime:restaurant_closingtime,imgpath:filepath},{new: true});
+            // console.log(await sellerModel.findById({_id:id}));
+            if(!(await sellerModel.findById({_id:id})))throw new Error("login or register !");
+            // console.log(currstate);
+            const result=await sellerModel.findByIdAndUpdate({_id:id},{restaurantname:restaurantname,mobilenumber:mobilenumber,restaurantaddress:restaurantaddress,restaurant_openingtime:restaurant_openingtime,restaurant_closingtime:restaurant_closingtime,imgpath:filepath,state:currstate,longitude:currlongitude,latitude:currlatitude},{new: true});
             console.log(result);
             
             res.status(200).json({

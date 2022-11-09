@@ -30,6 +30,7 @@ const foodSchema=mongoose.Schema({
         unique:true,
         default:""
     },
+    
     restaurant_openingtime:{
         type:String,
         default:""
@@ -40,6 +41,16 @@ const foodSchema=mongoose.Schema({
     },
     imgpath:{
         type:Array,
+    },
+    state:{
+        type:String,
+        default:""
+    },
+    latitude:{
+        type:Number
+    },
+    longitude:{
+        type:Number
     },
     verify:{
         type:Boolean,

@@ -22,6 +22,10 @@ const userSchema = mongoose.Schema({
     type:Boolean,
     required:false,
   },
+  nearme:{
+    type:Array,
+    default:[]
+  },
   cart:[{
     foodname:{
         type:String,
