@@ -97,7 +97,7 @@ const foodCtrl={
           success: true,
           msg: "OTP sent",
           accesstoken,
-          id:user._id,
+          // id:user._id,
         });
 
 
@@ -180,6 +180,7 @@ const foodCtrl={
           res.status(200).json({
             success: true,
             msg: "user verified",
+            id:user._id
           });
         } else res.status(400).json({ success: false, msg: "OTP incorrect" });
       } catch (error) {

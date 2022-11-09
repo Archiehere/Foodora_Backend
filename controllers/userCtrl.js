@@ -135,7 +135,8 @@ const userCtrl = {
       res.status(200).json({
         success: true,
         msg: "Login successful",
-        accesstoken
+        accesstoken,
+        id:user._id
       });
     } catch (error) {
       res.status(400).json({ success: false, msg: error.message });
@@ -375,6 +376,7 @@ const userCtrl = {
         res.status(200).json({
           success: true,
           msg: "user verified",
+          id:user._id
         });
       } else res.status(400).json({ success: false, msg: "OTP incorrect" });
     } catch (error) {
