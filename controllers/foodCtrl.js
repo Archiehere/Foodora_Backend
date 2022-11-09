@@ -431,8 +431,9 @@ const foodCtrl={
             
             res.status(200).json({
                 success:true,
-                msg:"Dish entered successfully !"
-            })
+                msg:"Dish entered successfully !",
+                newfoodlist
+            });
 
 
         }
