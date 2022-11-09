@@ -5,6 +5,10 @@ require('dotenv').config();
 const app = express();
 const CookieParser=require("cookie-parser");
 const cors = require('cors');
+const fs = require('fs');
+if(!fs.existsSync('./uploads')){
+  fs.mkdirSync('./uploads');
+}
 app.use(cors());
 
 
@@ -13,6 +17,7 @@ dbconnection();
 app.use(express.json());
 app.use(CookieParser());
 app.use(express.static(__dirname + '/public'));
+
 app.use('/uploads', express.static('uploads'));
 
 app.use('/user',require('./router/userRouter'));

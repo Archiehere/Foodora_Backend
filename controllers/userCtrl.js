@@ -1,4 +1,5 @@
 const UserModel = require("../models/userModel");
+const { distanceTo, isInsideCircle } = require('geofencer');
 const otpModel = require("../models/otpModel");
 const bcrypt = require("bcrypt");
 const nodemailer = require("nodemailer");
@@ -475,12 +476,47 @@ const userCtrl = {
   },
   feed:async(req,res)=>{
     try{
-      
+      const {latitude,longitude}=req.header;
+      // const topcomm = await subSpace.find().sort({members:-1}).limit(5);
+      // const posts = await Post.find().sort({createdAt:-1}).limit(10);
+      // return res.status(200).json({topcomm,posts});
+           
+
+
+      res.status(200).json({
+        success: true,
+        msg: "Feed sent successfully",
+        
+      })
+
+      // const userlat=0;
+      // const restlat=0;
+      // const userlong=0;
+      // const restlong=0;
+      // const circle = {
+      //     center: [userlat, userlong], // red pyramid in Giza, Egypt
+      //     radius: 10000 // 10km
+      // }
+      // const point = [restlat, restlong] // Alexandria... >5km away from Giza
+      // const inside = isInsideCircle(circle.center, point, circle.radius);
+      // const distance = distanceTo([userlat, userlong], [userlat, userlong]);
+      // console.log(inside,distance/1000);
     }
     catch(err){
-      return res.status(400).json({ msg: err.message });
+      // return res.status(400).json({ msg:"unable to send feed" });
+      return res.status(400).json({ msg:err.msg });
     }
   },
+  getmoreposts: async (req,res) => {
+    try {
+        const {num} = req.body;
+        const posts = await Post.find().sort({createdAt:-1}).skip(10*num).limit(10);
+        return res.status(200).json(posts);
+    } catch (err) {
+        console.log(err);
+        return res.status(400).json({ msg:err.msg });
+    }
+},
   location:(req,res)=>{
     try{
       const{latitude,longitude}=req.body;
