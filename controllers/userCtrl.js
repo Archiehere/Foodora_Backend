@@ -474,13 +474,14 @@ const userCtrl = {
   },
   feed:async(req,res)=>{
     try{
-      const {user_id}=req.body;
+      const {user_id}=req.body(user_id);
+      console.log(user_id);
       // const topcomm = await subSpace.find().sort({members:-1}).limit(5);
       // const posts = await Post.find().sort({createdAt:-1}).limit(10);
       // return res.status(200).json({topcomm,posts});
         const nearby = await UserModel.findById(user_id);
-        // console.log(nearby);
-      if(!nearby)throw new Error("id incorrect");
+        console.log(nearby);
+      if(nearby)throw new Error("id incorrect");
       near=nearby.nearme;
       res.status(200).json({
         success: true,
@@ -490,8 +491,8 @@ const userCtrl = {
 
     }
     catch(err){
-      // return res.status(400).json({ msg:"unable to send feed" });
-      return res.status(400).json({ msg:err.msg });
+      return res.status(400).json({ msg:"unable to send feed" });
+      // return res.status(400).json({ msg:err.message });
     }
   },
 //   getmoreposts: async (req,res) => {

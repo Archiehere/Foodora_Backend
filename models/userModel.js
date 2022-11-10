@@ -29,7 +29,7 @@ const userSchema = mongoose.Schema({
   cart:[{
     foodname:{
         type:String,
-        unique:true,
+        // unique:true,
     },
     food_price:{
 
