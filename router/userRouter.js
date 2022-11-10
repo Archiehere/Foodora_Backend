@@ -18,5 +18,8 @@ router.get("/refresh_token", userCtrl.refreshToken);
 // router.post('/forgot',userCtrl.verify);
 router.post("/userprofile",userCtrl.userprofile);
 router.patch("/addtocart",userCtrl.addtocart);
+router.patch("/removefromcart",userCtrl.removefromcart);
+router.post("/viewcart",userCtrl.viewcart);
+router.post("/fooditemcount",userCtrl.send_count_of_fooditem);
 
 module.exports = router;

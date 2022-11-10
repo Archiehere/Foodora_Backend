@@ -437,37 +437,168 @@ const userCtrl = {
           cartfoodlist=foodlist;
         }
       })
-      const foodname=cartfoodlist.foodname;
-      const food_price=cartfoodlist.food_price;
-
-      const users=await UserModel.findById(user_id);
-      const {cart}=users;
+      
+      var foodname=cartfoodlist.foodname;
+      var food_price=cartfoodlist.food_price;
+      const user=await UserModel.findById(user_id);
+      const {cart}=user;
       let cartinfotemp=null;
+      let i=0;
+      let j;
       cart.forEach(cartinfo=>{
         if(cartinfo.foodname==foodname)
         {
           cartinfotemp=cartinfo;
+          j=i;
+
         }
+        i++;
         
       })
-      console.log(cartinfotemp);
+      console.log(i);
       if(cartinfotemp!=null)
       {
-        cartinfotemp.quantity++;
+        foodname=cartinfotemp.foodname;
+        food_price=cartinfotemp.food_price;
+        console.log(foodname);
+        console.log(food_price);
+        let quantity=cartinfotemp.quantity+1;
+        cart.splice(j,1);
+        // console.log(cart);
+        console.log(i);
+        const newcart=[...cart,{foodname,food_price,quantity}];
+
+        const result=await UserModel.findByIdAndUpdate({_id:user_id},{cart:newcart},{new: true});  
       }
       else{
-      var quantity=0
-      const newcart=[...cart,{foodname,food_price,quantity}];
+        var quantity=1;
+        console.log("else-block");
+        const newcart=[...cart,{foodname,food_price,quantity}];
 
-      const result=await UserModel.findByIdAndUpdate({_id:user_id},{cart:newcart},{new: true});
-      console.log(result);
+        const result=await UserModel.findByIdAndUpdate({_id:user_id},{cart:newcart},{new: true});
+        console.log(result);
       }
+      res.status(200).json({
+        success: true,
+        msg: "addedtocart",
+      })
     }
     catch(err){
       return res.status(400).json({ msg: err.message });
     }
+  },
+  removefromcart:async(req,res)=>{
+    try{
+      const{seller_id,food_id,user_id}=req.body;
+      const fooddetails=await sellerModel.findById(seller_id);
+      const{food_list}=fooddetails;
+      let cartfoodlist;
+      food_list.forEach(foodlist=>{
+        if(foodlist._id==food_id)
+        {
+          cartfoodlist=foodlist;
+        }
+      })
+      
+      var foodname=cartfoodlist.foodname;
+      var food_price=cartfoodlist.food_price;
+      const user=await UserModel.findById(user_id);
+      const {cart}=user;
+      let cartinfotemp=null;
+      let i=0;
+      let j;
+      cart.forEach(cartinfo=>{
+        if(cartinfo.foodname==foodname)
+        {
+          cartinfotemp=cartinfo;
+          j=i;
+        }
+        i++;
+        
+      })
+      console.log(i);
+      if(cartinfotemp!=null)
+      {
+        foodname=cartinfotemp.foodname;
+        food_price=cartinfotemp.food_price;
+        console.log(foodname);
+        console.log(food_price);
+        let quantity=cartinfotemp.quantity-1;
+        if(quantity<=0)
+          quantity=0;
+          
+        cart.splice(j,1);
+        // console.log(cart);
+        console.log(i);
+        const newcart=[...cart,{foodname,food_price,quantity}];
+        const result=await UserModel.findByIdAndUpdate({_id:user_id},{cart:newcart},{new: true});  
+      }
+      else{
+      var quantity=1;
+      console.log("else-block");
+      const newcart=[...cart,{foodname,food_price,quantity}];
+      const result=await UserModel.findByIdAndUpdate({_id:user_id},{cart:newcart},{new: true});
+      console.log(result);
+      }
+      res.status(200).json({
+        success: true,
+        msg: "removedfromcart",
+
+      })  
+    }
+    catch(err){
+      return res.status(400).json({ msg: err.message });
+    }
+  },
+  viewcart:async(req,res)=>{
+    try{
+      const{user_id}=req.body;
+      const users=await UserModel.findById(user_id);
+      const {cart}=users;
+      res.status(200).json({
+        success:true,
+        message:"contents of cart are given below",
+        cart
+      })
+    }
+    catch(err){
+      return res.status(400).json({msg:err.message});
+    }
+  },
+  send_count_of_fooditem:async(req,res)=>{
+    try{
+      const{foodname,user_id}=req.body;
+      const users=await UserModel.findById(user_id);
+      const  {cart}=users;
+      let count=0;
+      let tempcartinfo=null;
+      cart.forEach(cartinfo=>{
+        if(cartinfo.foodname==foodname)
+        {
+          tempcartinfo=cartinfo
+        }
+      })
+      if(tempcartinfo==null)
+      {
+        count=0;
+      }
+      else{
+        count=tempcartinfo.quantity;
+      }
+
+      res.status(200).json({
+        success:true,
+        message:"count sent successfully !",
+        count
+      })
+    }
+    catch(err){
+      return res.status(400).json({msg:err.message});
+    }
   }
+
 }
+
 
 
 const createAccessToken = (user) => {
