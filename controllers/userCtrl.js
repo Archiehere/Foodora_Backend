@@ -526,12 +526,19 @@ const userCtrl = {
         let quantity=cartinfotemp.quantity-1;
         if(quantity<=0)
           quantity=0;
-          
-        cart.splice(j,1);
-        // console.log(cart);
+        
+        if(quantity==0)
+        {
+          cart.splice(j,1);
+          console.log(cart);
+          const result=await UserModel.findByIdAndUpdate({_id:user_id},{cart:cart},{new: true}); 
+        }
+        else{
+        
         console.log(i);
         const newcart=[...cart,{foodname,food_price,quantity}];
-        const result=await UserModel.findByIdAndUpdate({_id:user_id},{cart:newcart},{new: true});  
+        const result=await UserModel.findByIdAndUpdate({_id:user_id},{cart:newcart},{new: true}); 
+        }
       }
       else{
       var quantity=1;
