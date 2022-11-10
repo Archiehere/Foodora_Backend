@@ -78,20 +78,9 @@ const userCtrl = {
             console.log("mail sent");
           }
         });
-
-
-        const accesstoken = createAccessToken({ id: user._id });
-        const refreshtoken = createRefreshToken({ id: user._id });
-
-        res.cookie("refreshtoken", refreshtoken, {
-          httpOnly: true,
-          path: "/user/refresh_token",
-          maxAge: 7 * 24 * 60 * 60 * 1000, //7d
-        });
         res.status(200).json({
           success: true,
           msg: "OTP sent",
-          accesstoken
         });
 
 
@@ -123,15 +112,6 @@ const userCtrl = {
 
 
       const accesstoken = createAccessToken({ id: user._id });
-      const refreshtoken = createRefreshToken({ id: user._id });
-
-      res.cookie("refreshtoken", refreshtoken, {
-        httpOnly: true,
-        path: "/user/refresh_token",
-        maxAge: 7 * 24 * 60 * 60 * 1000, //7d
-      });
-      
-
       res.status(200).json({
         success: true,
         msg: "Login successful",
@@ -373,10 +353,12 @@ const userCtrl = {
             console.log("mail sent");
           }
         });
+        const accesstoken = createAccessToken({ id: user._id });
         res.status(200).json({
           success: true,
           msg: "user verified",
-          id:user._id
+          id:user._id,
+          accesstoken
         });
       } else res.status(400).json({ success: false, msg: "OTP incorrect" });
     } catch (error) {
@@ -446,46 +428,26 @@ const userCtrl = {
           cartfoodlist=foodlist;
         }
       })
-      
-      var foodname=cartfoodlist.foodname;
-      var food_price=cartfoodlist.food_price;
-      const user=await UserModel.findById(user_id);
-      const {cart}=user;
-      let cartinfotemp=null;
-      let i=0;
-      let j;
-      cart.forEach(cartinfo=>{
-        if(cartinfo.foodname==foodname)
-        {
-          cartinfotemp=cartinfo;
-          j=i;
+      const foodname=cartfoodlist.foodname;
+      const food_price=cartfoodlist.food_price;
 
-        }
-        i++;
+      const users=await UserModel.findById(user_id);
+      const {cart}=users;
+      let cartinfotemp=null;
+      cart.forEach(restaurant=>{
         
       })
-      console.log(i);
+      console.log(cartinfotemp);
       if(cartinfotemp!=null)
       {
-        foodname=cartinfotemp.foodname;
-        food_price=cartinfotemp.food_price;
-        console.log(foodname);
-        console.log(food_price);
-        let quantity=cartinfotemp.quantity+1;
-        cart.splice(j,1);
-        // console.log(cart);
-        console.log(i);
-        const newcart=[...cart,{foodname,food_price,quantity}];
-
-        const result=await UserModel.findByIdAndUpdate({_id:user_id},{cart:newcart},{new: true});  
+        cartinfotemp.quantity++;
       }
       else{
-        var quantity=1;
-        console.log("else-block");
-        const newcart=[...cart,{foodname,food_price,quantity}];
+      var quantity=0
+      const newcart=[...cart,{foodname,food_price,quantity}];
 
-        const result=await UserModel.findByIdAndUpdate({_id:user_id},{cart:newcart},{new: true});
-        console.log(result);
+      const result=await UserModel.findByIdAndUpdate({_id:user_id},{cart:newcart},{new: true});
+      console.log(result);
       }
       res.status(200).json({
         success: true,
@@ -496,120 +458,93 @@ const userCtrl = {
       return res.status(400).json({ msg: err.message });
     }
   },
-  removefromcart:async(req,res)=>{
+  feed:async(req,res)=>{
     try{
-      const{seller_id,food_id,user_id}=req.body;
-      const fooddetails=await sellerModel.findById(seller_id);
-      const{food_list}=fooddetails;
-      let cartfoodlist;
-      food_list.forEach(foodlist=>{
-        if(foodlist._id==food_id)
-        {
-          cartfoodlist=foodlist;
-        }
-      })
-      
-      var foodname=cartfoodlist.foodname;
-      var food_price=cartfoodlist.food_price;
-      const user=await UserModel.findById(user_id);
-      const {cart}=user;
-      let cartinfotemp=null;
-      let i=0;
-      let j;
-      cart.forEach(cartinfo=>{
-        if(cartinfo.foodname==foodname)
-        {
-          cartinfotemp=cartinfo;
-          j=i;
-        }
-        i++;
-        
-      })
-      console.log(i);
-      if(cartinfotemp!=null)
-      {
-        foodname=cartinfotemp.foodname;
-        food_price=cartinfotemp.food_price;
-        console.log(foodname);
-        console.log(food_price);
-        let quantity=cartinfotemp.quantity-1;
-        if(quantity<=0)
-          quantity=0;
-        
-        if(quantity==0)
-        {
-          cart.splice(j,1);
-          console.log(cart);
-          const result=await UserModel.findByIdAndUpdate({_id:user_id},{cart:cart},{new: true}); 
-        }
-        else{
-        
-        console.log(i);
-        const newcart=[...cart,{foodname,food_price,quantity}];
-        const result=await UserModel.findByIdAndUpdate({_id:user_id},{cart:newcart},{new: true}); 
-        }
-      }
-      else{
-      var quantity=1;
-      console.log("else-block");
-      const newcart=[...cart,{foodname,food_price,quantity}];
-      const result=await UserModel.findByIdAndUpdate({_id:user_id},{cart:newcart},{new: true});
-      console.log(result);
-      }
+      const {user_id}=req.body;
+      // const topcomm = await subSpace.find().sort({members:-1}).limit(5);
+      // const posts = await Post.find().sort({createdAt:-1}).limit(10);
+      // return res.status(200).json({topcomm,posts});
+        const nearby = await UserModel.findById(user_id);
+        // console.log(nearby);
+      if(!nearby)throw new Error("id incorrect");
+      near=nearby.nearme;
       res.status(200).json({
         success: true,
-        msg: "removedfromcart",
-
-      })  
-    }
-    catch(err){
-      return res.status(400).json({ msg: err.message });
-    }
-  },
-  viewcart:async(req,res)=>{
-    try{
-      const{user_id}=req.body;
-      const users=await UserModel.findById(user_id);
-      const {cart}=users;
-      res.status(200).json({
-        success:true,
-        message:"contents of cart are given below",
-        cart
+        msg: "Feed sent successfully",
+        near,
       })
+
     }
     catch(err){
-      return res.status(400).json({msg:err.message});
+      // return res.status(400).json({ msg:"unable to send feed" });
+      return res.status(400).json({ msg:err.msg });
     }
   },
-  send_count_of_fooditem:async(req,res)=>{
+//   getmoreposts: async (req,res) => {
+//     try {
+//         const {num} = req.body;
+//         const posts = await Post.find().sort({createdAt:-1}).skip(10*num).limit(10);
+//         return res.status(200).json(posts);
+//     } catch (err) {
+//         console.log(err);
+//         return res.status(400).json({ msg:err.msg });
+//     }
+// },
+  location:async(req,res)=>{
     try{
-      const{foodname,user_id}=req.body;
-      const users=await UserModel.findById(user_id);
-      const  {cart}=users;
-      let count=0;
-      let tempcartinfo=null;
-      cart.forEach(cartinfo=>{
-        if(cartinfo.foodname==foodname)
+      const{latitude,longitude,user_id}=req.body;
+      // console.log(latitude,longitude);
+      const user=await UserModel.findById(user_id);
+      if(!user)throw new Error("id incorrect");
+      // let{nearme}=user;
+      let near=[];
+      
+     
+        await geoCoder.reverse({ lat: latitude, lon: longitude})
+        .then((res)=> {
+          address=(res[0]);
+        })
+        .catch((err)=> {
+          console.log(err);
+        });
+        const staterestaurants=await sellerModel.find({state:address.state});
+        
+         
+        //  console.log(restaurants);
+        // console.log(address);
+      const userlat=latitude;
+      // const restlat=restaurant.latitude;
+      const userlong=longitude;
+      // const restlong=restaurant.longitude;
+      const circle = {
+          center: [userlat, userlong], // red pyramid in Giza, Egypt
+          radius: 10000 // 10km
+      }
+      staterestaurants.forEach(restaurant=>{
+        restlat=restaurant.latitude;
+        restlong=restaurant.longitude;
+        const point = [restlat, restlong];
+        if( isInsideCircle(circle.center, point, circle.radius))
         {
-          tempcartinfo=cartinfo
+          near.push(restaurant);
         }
-      })
-      if(tempcartinfo==null)
-      {
-        count=0;
-      }
-      else{
-        count=tempcartinfo.quantity;
-      }
-
-      res.status(200).json({
-        success:true,
-        message:"count sent successfully !",
-        count
-      })
+      });
+      // console.log(near);
+      user.nearme=near;
+      user.save();
+      // const point = [restlat, restlong] // Alexandria... >5km away from Giza
+      // const inside = isInsideCircle(circle.center, point, circle.radius);
+      // const distance = distanceTo([userlat, userlong], [userlat, userlong]);
+      // console.log(inside,distance/1000);
+        res.status(200).json({
+          success: true,
+          msg: "location identified!",
+          address:address.formattedAddress
+  
+        });
     }
-    catch(err){
-      return res.status(400).json({msg:err.message});
+    catch (err){
+        return res.status(400).json({success:false,msg:err.message});
     }
   },
   feed:async(req,res)=>{

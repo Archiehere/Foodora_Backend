@@ -83,21 +83,9 @@ const foodCtrl={
             console.log("mail sent");
           }
         });
-
-
-        const accesstoken = createAccessToken({ id: user._id });
-        const refreshtoken = createRefreshToken({ id: user._id });
-
-        res.cookie("refreshtoken", refreshtoken, {
-          httpOnly: true,
-          path: "/user/refresh_token",
-          maxAge: 7 * 24 * 60 * 60 * 1000, //7d
-        });
         res.status(200).json({
           success: true,
           msg: "OTP sent",
-          accesstoken,
-          // id:user._id,
         });
 
 
@@ -177,10 +165,11 @@ const foodCtrl={
               console.log("mail sent");
             }
           });
+          const accesstoken = createAccessToken({ id: user._id });
           res.status(200).json({
             success: true,
             msg: "user verified",
-            id:user._id
+            accesstoken
           });
         } else res.status(400).json({ success: false, msg: "OTP incorrect" });
       } catch (error) {
