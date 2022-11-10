@@ -372,10 +372,11 @@ const foodCtrl={
     },
     registerrestaurant:async(req,res)=>{
         try{
-            let currstate;
+            let currstate,currlatitude,loc=true,currlongitude;
             const{restaurantname,mobilenumber,restaurantaddress,restaurant_openingtime,restaurant_closingtime,id}=req.body;
            await geoCoder.geocode(restaurantaddress)
             .then((res)=> {
+              if(res.length==0)loc=false;
              currstate=(res[0].state);
              currlongitude=(res[0].longitude);
              currlatitude=(res[0].latitude);
@@ -383,7 +384,7 @@ const foodCtrl={
             .catch((err)=> {
               console.log(err);
             });
-          
+          if(!loc)throw new Error("Location not found");
             let filepath = [];
 
             if(req.files !== undefined){
@@ -456,20 +457,16 @@ const foodCtrl={
           console.log(id);
           if(!id)throw new Error("No user exists !")
           const sellerDetails=await sellerModel.findById(id);
-          const sellername=sellerDetails.sellername
-          const emailid=sellerDetails.email
-          const restaurantname=sellerDetails.restaurantname
-          const restaurantaddress=sellerDetails.restaurantaddress
-          const restaurantdesc=sellerDetails.restaurantdesc
+          // const sellername=sellerDetails.sellername
+          // const emailid=sellerDetails.email
+          // const restaurantname=sellerDetails.restaurantname
+          // const restaurantaddress=sellerDetails.restaurantaddress
+          // const restaurantdesc=sellerDetails.restaurantdesc
             
           res.status(200).json({
             success: true,
             msg: "seller details sent successfully !",
-            sellername,
-            emailid,
-            restaurantname,
-            restaurantaddress,
-            restaurantdesc
+            sellerDetails,
     
           })
 

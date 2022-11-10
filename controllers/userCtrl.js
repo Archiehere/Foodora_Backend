@@ -608,6 +608,7 @@ const userCtrl = {
         .catch((err)=> {
           console.log(err);
         });
+      
         const staterestaurants=await sellerModel.find({state:address.state});
         
          

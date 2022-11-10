@@ -8,7 +8,8 @@ const options = {
  
  geoCoder.geocode(address)
   .then((res)=> {
-    console.log(res[0]);
+    if(res.length==0)console.log("location not found");
+    console.log(res);
   })
   .catch((err)=> {
     console.log(err);
@@ -23,8 +24,8 @@ const options = {
     console.log(err);
   });}
 
-//   getlocation("Ajay Kumar Garg");
-  getaddress(28.6752434,77.5028992);
+  getlocation("faith cente,akgec");
+  // getaddress(28.6936205,77.5445817);
 // const userlat=0;
 // const restlat=0;
 // const userlong=0;
