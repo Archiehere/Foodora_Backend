@@ -17,7 +17,7 @@ const foodSchema=mongoose.Schema({
     restaurantname:{
         type:String,
         
-        unique:true,
+        // unique:true,
         default:""
     },
     mobilenumber:{
