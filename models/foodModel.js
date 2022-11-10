@@ -18,17 +18,18 @@ const foodSchema=mongoose.Schema({
         type:String,
         
         // unique:true,
-        default:""
+        // default:""
     },
     mobilenumber:{
         type:String,
-        unique:true,
-        default:""
+        // unique:true,
+        required:false,
+        // default:""
     },
     restaurantaddress:{
         type:String,
-        unique:true,
-        default:""
+        // unique:true,
+        // default:""
     },
     
     restaurant_openingtime:{
