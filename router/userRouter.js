@@ -18,9 +18,9 @@ router.get("/refresh_token", userCtrl.refreshToken);
 // router.post('/forgot',userCtrl.verify);
 router.post("/userprofile",userCtrl.userprofile);
 router.post("/addtocart",userCtrl.addtocart);
-router.patch("/removefromcart",userCtrl.removefromcart);
-router.post("/viewcart",userCtrl.viewcart);
-router.post("/fooditemcount",userCtrl.send_count_of_fooditem);
+// router.post("/removefromcart",userCtrl.removefromcart);
+// router.post("/viewcart",userCtrl.viewcart);
+// router.post("/fooditemcount",userCtrl.send_count_of_fooditem);
 router.post("/location",userCtrl.location);
 router.get("/feed",userCtrl.feed);
 
