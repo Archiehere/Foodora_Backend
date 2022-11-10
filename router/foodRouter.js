@@ -12,7 +12,7 @@ router.post('/signin',foodCtrl.signin);
 router.post('/forgot/send',foodCtrl.forgotsendOTP);
 router.post('/forgot/verify',foodCtrl.forgotverify);
 router.post('/forgot/reset',foodCtrl.resetpass);
-router.post('/sellerprofile',foodCtrl.sellerprofile)
+router.post('/sellerprofile',foodCtrl.sellerprofile);
 module.exports=router;
 
 

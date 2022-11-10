@@ -4,6 +4,7 @@ const otpModel = require("../models/otpModel");
 const bcrypt = require("bcrypt");
 const nodemailer = require("nodemailer");
 const jwt = require("jsonwebtoken");
+const mongoose = require('mongoose');
 const nodeGeocoder = require('node-geocoder');
 const options = {
   provider: 'openstreetmap'
@@ -458,28 +459,28 @@ const userCtrl = {
       return res.status(400).json({ msg: err.message });
     }
   },
-  feed:async(req,res)=>{
-    try{
-      const {user_id}=req.body;
-      // const topcomm = await subSpace.find().sort({members:-1}).limit(5);
-      // const posts = await Post.find().sort({createdAt:-1}).limit(10);
-      // return res.status(200).json({topcomm,posts});
-        const nearby = await UserModel.findById(user_id);
-        // console.log(nearby);
-      if(!nearby)throw new Error("id incorrect");
-      near=nearby.nearme;
-      res.status(200).json({
-        success: true,
-        msg: "Feed sent successfully",
-        near,
-      })
+  // feed:async(req,res)=>{
+  //   try{
+  //     const {user_id}=req.body;
+  //     // const topcomm = await subSpace.find().sort({members:-1}).limit(5);
+  //     // const posts = await Post.find().sort({createdAt:-1}).limit(10);
+  //     // return res.status(200).json({topcomm,posts});
+  //       const nearby = await UserModel.findById(user_id);
+  //       // console.log(nearby);
+  //     if(!nearby)throw new Error("id incorrect");
+  //     near=nearby.nearme;
+  //     res.status(200).json({
+  //       success: true,
+  //       msg: "Feed sent successfully",
+  //       near,
+  //     })
 
-    }
-    catch(err){
-      // return res.status(400).json({ msg:"unable to send feed" });
-      return res.status(400).json({ msg:err.msg });
-    }
-  },
+  //   }
+  //   catch(err){
+  //     // return res.status(400).json({ msg:"unable to send feed" });
+  //     return res.status(400).json({ msg:err.msg });
+  //   }
+  // },
 //   getmoreposts: async (req,res) => {
 //     try {
 //         const {num} = req.body;
@@ -549,14 +550,24 @@ const userCtrl = {
   },
   feed:async(req,res)=>{
     try{
-      const {user_id}=req.body(user_id);
-      console.log(user_id);
+      let token=req.headers['accesstoken'] || req.headers['authorization'];
+        token = token.replace(/^Bearer\s+/, "");
+        const decode = await jwt.decode(token,"jwtsecret");
+        const user_id=decode.id;
+        
+        let id = mongoose.Types.ObjectId(user_id);
+      
+      // text=toString(user_id);
+      // console.log(id);
       // const topcomm = await subSpace.find().sort({members:-1}).limit(5);
       // const posts = await Post.find().sort({createdAt:-1}).limit(10);
       // return res.status(200).json({topcomm,posts});
-        const nearby = await UserModel.findById(user_id);
-        console.log(nearby);
-      if(nearby)throw new Error("id incorrect");
+
+        const nearby = await UserModel.findById(id);
+        console.log(id);
+        if(nearby.nearme.length==0)throw new Error("nothing nearby");
+      if(!nearby)throw new Error("id incorrect");
+      // console.log(near);
       near=nearby.nearme;
       res.status(200).json({
         success: true,
@@ -566,8 +577,8 @@ const userCtrl = {
 
     }
     catch(err){
-      return res.status(400).json({ msg:"unable to send feed" });
-      // return res.status(400).json({ msg:err.message });
+      // return res.status(400).json({ msg:"unable to send feed" });
+      return res.status(400).json({ success:false,msg:err.message });
     }
   },
 //   getmoreposts: async (req,res) => {
