@@ -60,7 +60,7 @@ const foodSchema=mongoose.Schema({
         foodname:{
             type:String,
             
-            // unique:true,
+            unique:true,
         },
         food_price:{
 
