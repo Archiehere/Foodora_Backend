@@ -369,31 +369,31 @@ const userCtrl = {
   },
 
 
-  refreshToken: (req, res) => {
-    try {
-      const rf_token = req.cookies.refreshtoken;
-      if (!rf_token)
-        return res.status(400).json({ msg: "Please Login or Register" });
+  // refreshToken: (req, res) => {
+  //   try {
+  //     const rf_token = req.cookies.refreshtoken;
+  //     if (!rf_token)
+  //       return res.status(400).json({ msg: "Please Login or Register" });
 
-      jwt.verify(rf_token, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
-        if (err) return res.status(400).json({ msg: "Please Login or Register" });
+  //     jwt.verify(rf_token, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
+  //       if (err) return res.status(400).json({ msg: "Please Login or Register" });
 
-        const accesstoken = createAccessToken({ id: user.id });
+  //       const accesstoken = createAccessToken({ id: user.id });
 
-        res.json({ accesstoken });
-      });
-    } catch (err) {
-      return res.status(500).json({ msg: err.message });
-    }
-  },
-  logout: async (req, res) => {
-    try {
-      res.clearCookie("refreshtoken",{path:'/user/refresh_token'})
-      return res.json({msg:"Logged Out"})
-    } catch (err) {
-      return res.status(500).json({ msg: err.message });
-    }
-  },
+  //       res.json({ accesstoken });
+  //     });
+  //   } catch (err) {
+  //     return res.status(500).json({ msg: err.message });
+  //   }
+  // },
+  // logout: async (req, res) => {
+  //   try {
+  //     res.clearCookie("refreshtoken",{path:'/user/refresh_token'})
+  //     return res.json({msg:"Logged Out"})
+  //   } catch (err) {
+  //     return res.status(500).json({ msg: err.message });
+  //   }
+  // },
   userprofile:async(req,res)=>{
     try{
       const id=req.body;
@@ -861,9 +861,9 @@ const createAccessToken = (user) => {
   return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "1d" });
 };
 
-const createRefreshToken = (user) => {
-  return jwt.sign(user, process.env.REFRESH_TOKEN_SECRET, { expiresIn: "7d" });
-};
+// const createRefreshToken = (user) => {
+//   return jwt.sign(user, process.env.REFRESH_TOKEN_SECRET, { expiresIn: "7d" });
+// };
 
 
 module.exports = userCtrl;
