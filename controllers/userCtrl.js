@@ -809,6 +809,50 @@ const userCtrl = {
       return res.status(400).json({ success:false,msg:err.message });
     }
   },
+  checkout:async(req,res)=>{
+    try{
+      let token=req.headers['accesstoken'] || req.headers['authorization'];
+        token = token.replace(/^Bearer\s+/, "");
+        const decode = await jwt.decode(token,"jwtsecret");
+        const user_id=decode.id;
+        let id = mongoose.Types.ObjectId(user_id);
+        const user = await UserModel.findById(id);
+        if(user.cart.length==0)throw new Error("Cart is Empty");
+        
+         
+    
+        res.status(200).json({
+          success: true,
+          msg: "checkout successful",
+          user,
+  
+        });
+    }
+    catch (err){
+        return res.status(400).json({success:false,msg:err.message});
+    }
+  },
+  search:async(req,res) => {
+    try {
+        const {text} = req.body;
+        const filter = {$regex: text ,'$options': 'i'};
+        let docs = await sellerModel.aggregate([
+            { $match:{restaurantname: filter} }
+          ]).limit(5);
+        
+        if(!docs) return res.status(400).json({msg:'Not able to search.'});
+
+        const subs = [];
+        docs.forEach(obj=>{
+            subs.push(obj);
+        });
+
+        return res.status(200).json(subs);
+    } catch (err) {
+        console.log(err);
+        return res.status(400).json(err);
+    }
+}
 }
 
 
