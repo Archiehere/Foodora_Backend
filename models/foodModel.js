@@ -71,10 +71,11 @@ const foodSchema=mongoose.Schema({
             type:String,
             
         },
+        food_category:{
+            type:String,
+        },
         imgpath:{
             type:String,
-            
-            
         }
 
     }],

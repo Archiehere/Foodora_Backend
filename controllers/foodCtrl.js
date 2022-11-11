@@ -100,6 +100,7 @@ const foodCtrl={
     signin: async (req, res) => {
       try {
         const { email, password } = req.body;
+        // email = email.toLowerCase();
         const user = await sellerModel.findOne({ email });
         if (!user) throw new Error("No user found!");
         if (!user.verify) throw new Error("User Not Verified");
@@ -420,7 +421,7 @@ const foodCtrl={
 
             // })
 
-            const{foodname,food_price,food_desc,id}=req.body;
+            const{foodname,food_price,food_desc,food_category,id}=req.body;
             let filepath = null;
 
             if(req.file !== undefined){
@@ -431,16 +432,26 @@ const foodCtrl={
             const restaurant=await sellerModel.findById(id);
             if(!restaurant)throw new Error("no such restaurant found !");
             const {food_list}=restaurant; //check if empty food_list array is obtained or not on first food item entry
-
-            const newfoodlist=[...food_list,{foodname,food_price,food_desc,imgpath : filepath}];
+            let i=0;
+            food_list.forEach(foodlist=>{
+              if(foodname==foodlist.foodname)
+              {
+                i=1;
+              }
+            })
+            const newfoodlist=[...food_list,{foodname,food_price,food_desc,food_category,imgpath : filepath}];
+            if(i==0){
 
             const result=await sellerModel.findByIdAndUpdate({_id:id},{food_list:newfoodlist},{new: true});
             console.log(result);
+            }
+            else{
+              throw new Error("Item already exists !");
+            }
             
             res.status(200).json({
                 success:true,
                 msg:"Dish entered successfully !",
-                newfoodlist
             });
 
 
@@ -483,8 +494,8 @@ const createAccessToken = (user) => {
   return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "11m" });
 };
 
-const createRefreshToken = (user) => {
-  return jwt.sign(user, process.env.REFRESH_TOKEN_SECRET, { expiresIn: "7d" });
-};
+// const createRefreshToken = (user) => {
+//   return jwt.sign(user, process.env.REFRESH_TOKEN_SECRET, { expiresIn: "7d" });
+// };
 
 module.exports=foodCtrl;
