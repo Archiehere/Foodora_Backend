@@ -435,20 +435,28 @@ const foodCtrl={
             if(!restaurant)throw new Error("no such restaurant found !");
             const {food_list}=restaurant; //check if empty food_list array is obtained or not on first food item entry
             let i=0;
+            let j=0;
+            let pointer=0;
             food_list.forEach(foodlist=>{
               if(foodname==foodlist.foodname)
               {
                 i=1;
+                pointer=j;
               }
+              j++;
             })
-            const newfoodlist=[...food_list,{foodname,food_price,food_desc,food_category,imgpath : filepath}];
+            
             if(i==0){
-
+            const newfoodlist=[...food_list,{foodname,food_price,food_desc,food_category,imgpath : filepath}];
             const result=await sellerModel.findByIdAndUpdate({_id:id},{food_list:newfoodlist},{new: true});
             console.log(result);
             }
             else{
-              throw new Error("Item already exists !");
+              console.log(pointer);
+              food_list.splice(pointer,1);
+              const newfoodlist=[...food_list,{foodname,food_price,food_desc,food_category,imgpath : filepath}];
+              const result=await sellerModel.findByIdAndUpdate({_id:id},{food_list:newfoodlist},{new: true});
+
             }
             
             res.status(200).json({

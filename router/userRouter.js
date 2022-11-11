@@ -26,4 +26,6 @@ router.get("/feed",userCtrl.feed);
 router.get("/restaurant/:id",userCtrl.restaurant);
 router.post("/checkout",userCtrl.checkout);
 router.post("/search",userCtrl.search);
+router.post("/fooddetails",userCtrl.fooddetails);
+
 module.exports = router;
