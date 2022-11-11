@@ -23,6 +23,6 @@ router.post("/viewcart",userCtrl.viewcart);
 router.post("/fooditemcount",userCtrl.send_count_of_fooditem);
 router.post("/location",userCtrl.location);
 router.get("/feed",userCtrl.feed);
-router.get("/restaurant",userCtrl.restaurant);
+router.get("/restaurant/:id",userCtrl.restaurant);
 
 module.exports = router;

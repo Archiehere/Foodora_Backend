@@ -790,7 +790,7 @@ const userCtrl = {
       // const topcomm = await subSpace.find().sort({members:-1}).limit(5);
       // const posts = await Post.find().sort({createdAt:-1}).limit(10);
       // return res.status(200).json({topcomm,posts});
-
+        const id=req.params.id;
         const seller = await sellerModel.findById(id);
         // console.log(id);
         // if(nearby.nearme.length==0)throw new Error("nothing nearby");
