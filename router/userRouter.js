@@ -23,5 +23,6 @@ router.post("/addtocart",userCtrl.addtocart);
 // router.post("/fooditemcount",userCtrl.send_count_of_fooditem);
 router.post("/location",userCtrl.location);
 router.get("/feed",userCtrl.feed);
+router.get("/restaurant",userCtrl.restaurant);
 
 module.exports = router;

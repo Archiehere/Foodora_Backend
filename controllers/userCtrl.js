@@ -648,14 +648,46 @@ const userCtrl = {
     catch (err){
         return res.status(400).json({success:false,msg:err.message});
     }
-  }
+  },
+  restaurant:async(req,res)=>{
+    try{
+      // let token=req.headers['accesstoken'] || req.headers['authorization'];
+      //   token = token.replace(/^Bearer\s+/, "");
+      //   const decode = await jwt.decode(token,"jwtsecret");
+      //   const seller_id=decode.id;
+        
+      //   let id = mongoose.Types.ObjectId(seller_id);
+      
+      // text=toString(user_id);
+      // console.log(id);
+      // const topcomm = await subSpace.find().sort({members:-1}).limit(5);
+      // const posts = await Post.find().sort({createdAt:-1}).limit(10);
+      // return res.status(200).json({topcomm,posts});
 
+        const seller = await sellerModel.findById(id);
+        // console.log(id);
+        // if(nearby.nearme.length==0)throw new Error("nothing nearby");
+      if(!seller)throw new Error("id incorrect");
+      // console.log(near);
+      // near=nearby.nearme;
+      res.status(200).json({
+        success: true,
+        msg: "Seller sent successfully",
+        seller,
+      })
+
+    }
+    catch(err){
+      // return res.status(400).json({ msg:"unable to send feed" });
+      return res.status(400).json({ success:false,msg:err.message });
+    }
+  },
 }
 
 
 
 const createAccessToken = (user) => {
-  return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "11m" });
+  return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "1d" });
 };
 
 const createRefreshToken = (user) => {
