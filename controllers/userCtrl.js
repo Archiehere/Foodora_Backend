@@ -419,7 +419,7 @@ const userCtrl = {
   },
   addtocart:async(req,res)=>{
     try{
-      const{seller_id,food_id,user_id}=req.body;
+      let{seller_id,food_id,user_id}=req.body;
       const fooddetails=await sellerModel.findById(seller_id);
       const{food_list}=fooddetails;
       let cartfoodlist;
@@ -428,40 +428,59 @@ const userCtrl = {
         {
           cartfoodlist=foodlist;
         }
-      })
-      
+      })  
       var foodname=cartfoodlist.foodname;
       var food_price=cartfoodlist.food_price;
       const user=await UserModel.findById(user_id);
-      const {cart}=user;
-      let cartinfotemp=null;
-      let i=0;
-      let j;
-      cart.forEach(cartinfo=>{
-        if(cartinfo.foodname==foodname)
-        {
-          cartinfotemp=cartinfo;
-          j=i;
-
-        }
-        i++;
-        
-      })
-      if(cartinfotemp!=null)
+      let {sellerid}=user;
+      console.log(sellerid);
+      if(seller_id==sellerid || sellerid=="")
       {
-        foodname=cartinfotemp.foodname;
-        food_price=cartinfotemp.food_price;
-        let quantity=cartinfotemp.quantity+1;
-        cart.splice(j,1);
-        const newcart=[...cart,{foodname,food_price,quantity}];
+        if(sellerid=="")
+        {
+          sellerid=seller_id;
+        }
+        console.log(sellerid);
+        const {cart}=user;
+        console.log(cart);
+        let cartinfotemp=null;
+        let i=0;
+        let j;
+        cart.forEach(cartinfo=>{
+          if(cartinfo.foodname==foodname)
+          {
+            cartinfotemp=cartinfo;
+            j=i;
 
-        const result=await UserModel.findByIdAndUpdate({_id:user_id},{cart:newcart},{new: true});  
+          }
+          i++;
+          
+        })
+        if(cartinfotemp!=null)
+        {
+          foodname=cartinfotemp.foodname;
+          food_price=cartinfotemp.food_price;
+          let quantity=cartinfotemp.quantity+1;
+          cart.splice(j,1);
+          const newcart=[...cart,{foodname,food_price,quantity}];
+
+          const result=await UserModel.findByIdAndUpdate({_id:user_id},{cart:newcart},{new: true});  
+          const result2=await UserModel.findByIdAndUpdate({_id:user_id},{sellerid:sellerid},{new: true}); 
+        }
+        else{
+          var quantity=1;
+          const newcart=[...cart,{foodname,food_price,quantity}];
+          const result1=await UserModel.findByIdAndUpdate({_id:user_id},{cart:newcart},{new: true});
+          const result2=await UserModel.findByIdAndUpdate({_id:user_id},{sellerid:sellerid},{new: true});  
+        }
+        
       }
-      else{
-        var quantity=1;
-        const newcart=[...cart,{foodname,food_price,quantity}];
-
-        const result=await UserModel.findByIdAndUpdate({_id:user_id},{cart:newcart},{new: true});
+      else
+      {
+        sellerid=seller_id;
+        const newcart=[{foodname,food_price,quantity}];
+        const result=await UserModel.findByIdAndUpdate({_id:user_id},{cart:newcart},{new: true});  
+        const result2=await UserModel.findByIdAndUpdate({_id:user_id},{sellerid:sellerid},{new: true}); 
       }
       res.status(200).json({
         success: true,
@@ -548,6 +567,42 @@ const userCtrl = {
       return res.status(400).json({msg:err.message});
     }
   },
+  fooddetails:async(req,res)=>{
+    try{
+      const{food_id,seller_id}=req.body;
+      const seller=await sellerModel.findById(seller_id);
+      const{food_list}=seller;
+      let tempfoodinfo=null;
+      food_list.forEach(foodinfo=>{
+        if(foodinfo._id==food_id)
+        {
+          tempfoodinfo=foodinfo;
+          
+        }
+      })
+      let foodname;
+      let foodprice;
+      let fooddesc;
+      if(tempfoodinfo!=null)
+      {
+        foodname=tempfoodinfo.foodname;
+        foodprice=tempfoodinfo.food_price;
+        fooddesc=tempfoodinfo.food_desc;
+      }
+      res.status(200).json({
+        success:true,
+        message:"food sent successfuly !",
+        foodname,
+        foodprice,
+        fooddesc
+      })
+
+
+    }
+    catch(err){
+      return res.status(400).json({msg:err.message});
+    }
+  },
 
 
   send_count_of_fooditem:async(req,res)=>{
@@ -560,7 +615,7 @@ const userCtrl = {
       cart.forEach(cartinfo=>{
         if(cartinfo.foodname==foodname)
         {
-          tempcartinfo=cartinfo
+          tempcartinfo=cartinfo;
         }
       })
       if(tempcartinfo==null)
