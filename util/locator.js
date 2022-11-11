@@ -24,7 +24,7 @@ const options = {
     console.log(err);
   });}
 
-  getlocation("faith cente,akgec");
+  getlocation("201310");
   // getaddress(28.6936205,77.5445817);
 // const userlat=0;
 // const restlat=0;
