@@ -13,6 +13,7 @@ router.post('/forgot/send',foodCtrl.forgotsendOTP);
 router.post('/forgot/verify',foodCtrl.forgotverify);
 router.post('/forgot/reset',foodCtrl.resetpass);
 router.post('/sellerprofile',foodCtrl.sellerprofile);
+router.post('/removefromorders',foodCtrl.removefromorders);
 module.exports=router;
 
 

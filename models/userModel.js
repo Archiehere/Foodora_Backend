@@ -17,6 +17,10 @@ const userSchema = mongoose.Schema({
     type:String,
     required:true,
   },
+  orderhistory:{
+    type:Array,
+    default:[]
+  },
   otp:{
     type:String,
     required:false,
@@ -46,7 +50,8 @@ const userSchema = mongoose.Schema({
     quantity:{
       type:Number,
       default:null
-    }
+    },
+   
 }],
   
   

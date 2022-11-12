@@ -403,13 +403,15 @@ const userCtrl = {
       const userDetails=await UserModel.findById(id);
       const username=userDetails.username
       const emailid=userDetails.email
-
+      const orderhistory=userDetails.orderhistory
+      // console.log(userDetails);
       res.status(200).json({
         success: true,
         msg: "user details sent successfully !",
         username,
         emailid,
         imagepath:userDetails.profileimgpath,
+        orderhistory,
       })
 
 
@@ -753,63 +755,6 @@ const userCtrl = {
 //         return res.status(400).json({ msg:err.msg });
 //     }
 // },
-  location:async(req,res)=>{
-    try{
-      const{latitude,longitude,user_id}=req.body;
-      // console.log(latitude,longitude);
-      const user=await UserModel.findById(user_id);
-      if(!user)throw new Error("id incorrect");
-      // let{nearme}=user;
-      let near=[];
-      
-     
-        await geoCoder.reverse({ lat: latitude, lon: longitude})
-        .then((res)=> {
-          address=(res[0]);
-        })
-        .catch((err)=> {
-          console.log(err);
-        });
-        const staterestaurants=await sellerModel.find({state:address.state});
-        
-         
-        //  console.log(restaurants);
-        // console.log(address);
-      const userlat=latitude;
-      // const restlat=restaurant.latitude;
-      const userlong=longitude;
-      // const restlong=restaurant.longitude;
-      const circle = {
-          center: [userlat, userlong], // red pyramid in Giza, Egypt
-          radius: 10000 // 10km
-      }
-      staterestaurants.forEach(restaurant=>{
-        restlat=restaurant.latitude;
-        restlong=restaurant.longitude;
-        const point = [restlat, restlong];
-        if( isInsideCircle(circle.center, point, circle.radius))
-        {
-          near.push(restaurant);
-        }
-      });
-      // console.log(near);
-      user.nearme=near;
-      user.save();
-      // const point = [restlat, restlong] // Alexandria... >5km away from Giza
-      // const inside = isInsideCircle(circle.center, point, circle.radius);
-      // const distance = distanceTo([userlat, userlong], [userlat, userlong]);
-      // console.log(inside,distance/1000);
-        res.status(200).json({
-          success: true,
-          msg: "location identified!",
-          address:address.formattedAddress
-  
-        });
-    }
-    catch (err){
-        return res.status(400).json({success:false,msg:err.message});
-    }
-  },
   feed:async(req,res)=>{
     try{
       let token=req.headers['accesstoken'] || req.headers['authorization'];
@@ -959,6 +904,7 @@ const userCtrl = {
         // console.log(user.sellerid);
         const seller =await sellerModel.findByIdAndUpdate({_id:user.sellerid},{ $push: { orders: user.cart }});
         // seller.save(); 
+        user.orderhistory.push(user.cart);
         user.cart=[];
         user.save();
     
@@ -1021,6 +967,7 @@ const userCtrl = {
       return res.status(400).json(err);
     }
   },
+  
   
   
 }

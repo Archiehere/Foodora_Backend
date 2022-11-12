@@ -5,7 +5,7 @@ const nodemailer = require("nodemailer");
 const jwt = require("jsonwebtoken");
 const e = require("express");
 const otpGenerator = require("otp-generator");
-
+const mongoose = require('mongoose');
 const nodeGeocoder = require('node-geocoder');
 // const { distanceTo, isInsidePolygon, isInsideCircle } = require('geofencer');
 const options = {
@@ -512,38 +512,30 @@ const foodCtrl={
             return res.status(400).json({msg:err.message});
         }
       },
-      // setorderstatus:async(req,res)=>{
-      //   try{
-      //     let token=req.headers['accesstoken'] || req.headers['authorization'];
-      //       token = token.replace(/^Bearer\s+/, "");
-      //       const decode = await jwt.decode(token,"jwtsecret");
-      //       const user_id=decode.id;
-      //       let id = mongoose.Types.ObjectId(user_id);
-            
-      //       const user = await UserModel.findById(id);
-            
-      //       if(!user)throw new Error("id incorrect");
-      //       if(user.cart.length==0)throw new Error("Cart is Empty");
-      //       // console.log(user.sellerid);
-      //       const seller =await sellerModel.findByIdAndUpdate({_id:user.sellerid},{ $push: { orders: user.cart }});
-      //       // seller.save(); 
-      //       user.cart=[];
-      //       user.save();
-        
-      //       res.status(200).json({
-      //         success: true,
-      //         msg: "checkout successful",
-      //         // user,
-      //         seller,
-              
-      //       });
-      //   }
-      //   catch (err){
-      //     console.log(err);
-      //       return res.status(400).json({success:false,msg:err.message});
-      //   }
-      // },
       
+      removefromorders:async(req,res) =>{
+        try{    
+          let token=req.headers['accesstoken'] || req.headers['authorization'];
+          token = token.replace(/^Bearer\s+/, "");
+          const decode = await jwt.decode(token,"jwtsecret");
+          const user_id=decode.id;
+          let id = mongoose.Types.ObjectId(user_id);
+          const {index} = req.body;
+          const seller = await sellerModel.findById(id);
+          
+          if(!seller)throw new Error("id incorrect");
+          // console.log(seller.orders);
+          let orders = seller.orders;
+          orders.splice(index,1);
+          // console.log(orders);
+          seller.orders=orders;      
+          seller.save();
+          return res.status(200).json({msg:"order done"});
+        } catch(err) {
+          console.log(err);
+          return res.status(400).json(err);
+        }
+      },
 }
 const createAccessToken = (user) => {
   return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "1d" });
