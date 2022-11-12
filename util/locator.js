@@ -24,8 +24,8 @@ const options = {
     console.log(err);
   });}
 
-  getlocation("201310");
-  // getaddress(28.6936205,77.5445817);
+  // getlocation("201309");
+  getaddress(28.478120939999997,77.49307123);
 // const userlat=0;
 // const restlat=0;
 // const userlong=0;

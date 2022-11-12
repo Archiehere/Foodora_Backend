@@ -42,6 +42,7 @@ const foodSchema=mongoose.Schema({
     },
     imgpath:{
         type:Array,
+        default:"uploads/1668230968407-Screenshot_20221023_043313.png"
     },
     state:{
         type:String,
@@ -80,6 +81,7 @@ const foodSchema=mongoose.Schema({
         },
         imgpath:{
             type:String,
+            default:"uploads/1668230968407-Screenshot_20221023_043313.png"
         }
 
     }],
