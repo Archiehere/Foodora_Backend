@@ -378,7 +378,7 @@ const foodCtrl={
             const{restaurantname,mobilenumber,restaurantaddress,pincode,restaurant_openingtime,restaurant_closingtime}=req.body;
             let token=req.headers['accesstoken'] || req.headers['authorization'];
             token = token.replace(/^Bearer\s+/, "");
-            const decode = await jwt.decode(token,"jwtsecret");
+            const decode = await jwt.verify(token,process.env.ACCESS_TOKEN_SECRET);
             const _id=decode.id;
               
             const id = mongoose.Types.ObjectId(_id);
@@ -450,7 +450,7 @@ const foodCtrl={
 
             let token=req.headers['accesstoken'] || req.headers['authorization'];
             token = token.replace(/^Bearer\s+/, "");
-            const decode = await jwt.decode(token,"jwtsecret");
+            const decode = await jwt.verify(token,process.env.ACCESS_TOKEN_SECRET);
             const _id=decode.id;
               
             const id = mongoose.Types.ObjectId(_id);
@@ -509,7 +509,7 @@ const foodCtrl={
         try{
           let token=req.headers['accesstoken'] || req.headers['authorization'];
           token = token.replace(/^Bearer\s+/, "");
-          const decode = await jwt.decode(token,"jwtsecret");
+          const decode = await jwt.verify(token,process.env.ACCESS_TOKEN_SECRET);
           const _id=decode.id;
             
           const id = mongoose.Types.ObjectId(_id);
@@ -539,7 +539,7 @@ const foodCtrl={
         try{    
           let token=req.headers['accesstoken'] || req.headers['authorization'];
           token = token.replace(/^Bearer\s+/, "");
-          const decode = await jwt.decode(token,"jwtsecret");
+          const decode = await jwt.verify(token,process.env.ACCESS_TOKEN_SECRET);
           const user_id=decode.id;
           let id = mongoose.Types.ObjectId(user_id);
           const {index} = req.body;

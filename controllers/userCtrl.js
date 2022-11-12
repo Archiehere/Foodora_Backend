@@ -393,7 +393,7 @@ const userCtrl = {
     try{
       let token=req.headers['accesstoken'] || req.headers['authorization'];
       token = token.replace(/^Bearer\s+/, "");
-      const decode = await jwt.decode(token,"jwtsecret");
+      const decode = await jwt.verify(token,process.env.ACCESS_TOKEN_SECRET);
       const user_id=decode.id;
         
       const id = mongoose.Types.ObjectId(user_id);
@@ -425,7 +425,7 @@ const userCtrl = {
       let{seller_id,food_id}=req.body;
       let token=req.headers['accesstoken'] || req.headers['authorization'];
       token = token.replace(/^Bearer\s+/, "");
-      const decode = await jwt.decode(token,"jwtsecret");
+      const decode = await jwt.verify(token,process.env.ACCESS_TOKEN_SECRET);
       const user_id=decode.id;
         
       let id = mongoose.Types.ObjectId(user_id);
@@ -516,7 +516,7 @@ const userCtrl = {
       const{seller_id,food_id}=req.body;
       let token=req.headers['accesstoken'] || req.headers['authorization'];
       token = token.replace(/^Bearer\s+/, "");
-      const decode = await jwt.decode(token,"jwtsecret");
+      const decode = await jwt.verify(token,process.env.ACCESS_TOKEN_SECRET);
       const user_id=decode.id;
         
       const id = mongoose.Types.ObjectId(user_id);
@@ -589,7 +589,7 @@ const userCtrl = {
     try{
       let token=req.headers['accesstoken'] || req.headers['authorization'];
       token = token.replace(/^Bearer\s+/, "");
-      const decode = await jwt.decode(token,"jwtsecret");
+      const decode = await jwt.verify(token,process.env.ACCESS_TOKEN_SECRET);
       const user_id=decode.id;
         
       let id = mongoose.Types.ObjectId(user_id);
@@ -653,7 +653,7 @@ const userCtrl = {
       const{foodname,seller_id}=req.body;
       let token=req.headers['accesstoken'] || req.headers['authorization'];
       token = token.replace(/^Bearer\s+/, "");
-      const decode = await jwt.decode(token,"jwtsecret");
+      const decode = await jwt.verify(token,process.env.ACCESS_TOKEN_SECRET);
       const user_id=decode.id;
       
       let id = mongoose.Types.ObjectId(user_id);
@@ -702,7 +702,7 @@ const userCtrl = {
     try{
       let token=req.headers['accesstoken'] || req.headers['authorization'];
         token = token.replace(/^Bearer\s+/, "");
-        const decode = await jwt.decode(token,"jwtsecret");
+        const decode = await jwt.verify(token,process.env.ACCESS_TOKEN_SECRET);
         const user_id=decode.id;
         
         let id = mongoose.Types.ObjectId(user_id);
@@ -732,7 +732,7 @@ const userCtrl = {
       const{latitude,longitude}=req.body;
       let token=req.headers['accesstoken'] || req.headers['authorization'];
       token = token.replace(/^Bearer\s+/, "");
-      const decode = await jwt.decode(token,"jwtsecret");
+      const decode = await jwt.verify(token,process.env.ACCESS_TOKEN_SECRET);
       const user_id=decode.id;
         
       const id = mongoose.Types.ObjectId(user_id);
@@ -817,7 +817,7 @@ const userCtrl = {
     try{
       let token=req.headers['accesstoken'] || req.headers['authorization'];
         token = token.replace(/^Bearer\s+/, "");
-        const decode = await jwt.decode(token,"jwtsecret");
+        const decode = await jwt.verify(token,process.env.ACCESS_TOKEN_SECRET);
         const user_id=decode.id;
         let id = mongoose.Types.ObjectId(user_id);
         
@@ -870,7 +870,7 @@ const userCtrl = {
     try{    
       let token=req.headers['accesstoken'] || req.headers['authorization'];
       token = token.replace(/^Bearer\s+/, "");
-      const decode = await jwt.decode(token,"jwtsecret");
+      const decode = await jwt.verify(token,process.env.ACCESS_TOKEN_SECRET);
       const user_id=decode.id;
       let id = mongoose.Types.ObjectId(user_id);
       
