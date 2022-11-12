@@ -375,7 +375,7 @@ const foodCtrl={
     registerrestaurant:async(req,res)=>{
         try{
             let currstate,currlatitude,loc=true,currlongitude;
-            const{restaurantname,mobilenumber,restaurantaddress,restaurant_openingtime,restaurant_closingtime,id}=req.body;
+            const{restaurantname,mobilenumber,restaurantaddress,pincode,restaurant_openingtime,restaurant_closingtime,id}=req.body;
            await geoCoder.geocode(restaurantaddress)
             .then((res)=> {
               if(res.length==0)loc=false;
@@ -386,6 +386,21 @@ const foodCtrl={
             .catch((err)=> {
               console.log(err);
             });
+            if(loc==false)
+            {
+              await geoCoder.geocode(pincode)
+            .then((res)=> {
+              loc=true;
+              if(res.length==0)loc=false;
+             currstate=(res[0].state);
+             currlongitude=(res[0].longitude);
+             currlatitude=(res[0].latitude);
+             
+            })
+            .catch((err)=> {
+              console.log(err);
+            });
+            }
           if(!loc)throw new Error("Location not found");
             let filepath = [];
 
