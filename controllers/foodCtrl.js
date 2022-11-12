@@ -448,6 +448,8 @@ const foodCtrl={
             if(!id)throw new Error("login or register !");
             const restaurant=await sellerModel.findById(id);
             if(!restaurant)throw new Error("no such restaurant found !");
+            // console.log(restaurant.restaurantname);
+            if(!restaurant.restaurantname)throw new Error("restaurant not registered"); 
             const {food_list}=restaurant; //check if empty food_list array is obtained or not on first food item entry
             let i=0;
             let j=0;
