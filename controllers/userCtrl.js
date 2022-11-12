@@ -618,7 +618,7 @@ const userCtrl = {
       const{user_id}=req.body;
       const users=await UserModel.findById(user_id);
       const {cart}=users;
-      if(users.cart=[])throw new Error("cart empty");
+      // if(users.cart=[])throw new Error("cart empty");
         res.status(200).json({
         success:true,
         message:"contents of cart are given below",
