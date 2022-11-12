@@ -99,8 +99,8 @@ const foodCtrl={
     },
     signin: async (req, res) => {
       try {
-        const { email, password } = req.body;
-        // email = email.toLowerCase();
+        let { email, password } = req.body;
+        email = email.toLowerCase();
         const user = await sellerModel.findOne({ email });
         if (!user) throw new Error("No user found!");
         if (!user.verify) throw new Error("User Not Verified");
@@ -349,7 +349,7 @@ const foodCtrl={
         const userotp = await otpModel.findOne({ email });
         if (!userotp) throw new Error("Verification Timed OUT");
         if (!user) throw new Error("No user found!");
-  
+        
         if (userotp.verify == true) {
           const result = await bcrypt.compare(password, user.password);
           if (result) throw new Error("Please Change to new Password");
@@ -448,6 +448,8 @@ const foodCtrl={
             if(!id)throw new Error("login or register !");
             const restaurant=await sellerModel.findById(id);
             if(!restaurant)throw new Error("no such restaurant found !");
+            // console.log(restaurant.restaurantname);
+            if(!restaurant.restaurantname)throw new Error("restaurant not registered"); 
             const {food_list}=restaurant; //check if empty food_list array is obtained or not on first food item entry
             let i=0;
             let j=0;
@@ -509,10 +511,42 @@ const foodCtrl={
         catch (err){
             return res.status(400).json({msg:err.message});
         }
-      }
+      },
+      // setorderstatus:async(req,res)=>{
+      //   try{
+      //     let token=req.headers['accesstoken'] || req.headers['authorization'];
+      //       token = token.replace(/^Bearer\s+/, "");
+      //       const decode = await jwt.decode(token,"jwtsecret");
+      //       const user_id=decode.id;
+      //       let id = mongoose.Types.ObjectId(user_id);
+            
+      //       const user = await UserModel.findById(id);
+            
+      //       if(!user)throw new Error("id incorrect");
+      //       if(user.cart.length==0)throw new Error("Cart is Empty");
+      //       // console.log(user.sellerid);
+      //       const seller =await sellerModel.findByIdAndUpdate({_id:user.sellerid},{ $push: { orders: user.cart }});
+      //       // seller.save(); 
+      //       user.cart=[];
+      //       user.save();
+        
+      //       res.status(200).json({
+      //         success: true,
+      //         msg: "checkout successful",
+      //         // user,
+      //         seller,
+              
+      //       });
+      //   }
+      //   catch (err){
+      //     console.log(err);
+      //       return res.status(400).json({success:false,msg:err.message});
+      //   }
+      // },
+      
 }
 const createAccessToken = (user) => {
-  return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "11m" });
+  return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "1d" });
 };
 
 // const createRefreshToken = (user) => {

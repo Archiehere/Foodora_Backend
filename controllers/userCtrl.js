@@ -104,7 +104,8 @@ const userCtrl = {
   },
   signin: async (req, res) => {
     try {
-      const { email, password } = req.body;
+      let { email, password } = req.body;
+      email = email.toLowerCase();
       const user = await UserModel.findOne({ email });
       if (!user) throw new Error("No user found!");
       if (!user.verify) throw new Error("User Not Verified");
@@ -407,8 +408,8 @@ const userCtrl = {
         success: true,
         msg: "user details sent successfully !",
         username,
-        emailid
-
+        emailid,
+        imagepath:userDetails.profileimgpath,
       })
 
 
@@ -558,6 +559,7 @@ const userCtrl = {
     try{
       const{seller_id,food_id,user_id}=req.body;
       const fooddetails=await sellerModel.findById(seller_id);
+      console.log(fooddetails);
       const{food_list}=fooddetails;
       let cartfoodlist;
       food_list.forEach(foodlist=>{
@@ -566,6 +568,7 @@ const userCtrl = {
           cartfoodlist=foodlist;
         }
       })
+      console.log(cartfoodlist);
       
       var foodname=cartfoodlist.foodname;
       var food_price=cartfoodlist.food_price;
@@ -595,7 +598,7 @@ const userCtrl = {
         cart.splice(j,1);
         if(quantity>0){
         const newcart=[...cart,{foodname,food_price,quantity}];
-        const result=await UserModel.findByIdAndUpdate({_id:user_id},{cart:newcart},{new: true});  
+        const result=await UserModel.findByIdAndUpdate({_id:user_id},{cart:newcart},{new: true});
         }
         else{
           const result=await UserModel.findByIdAndUpdate({_id:user_id},{cart:cart},{new: true});
@@ -623,10 +626,12 @@ const userCtrl = {
       const{user_id}=req.body;
       const users=await UserModel.findById(user_id);
       const {cart}=users;
-      res.status(200).json({
+      // if(users.cart=[])throw new Error("cart empty");
+        res.status(200).json({
         success:true,
         message:"contents of cart are given below",
-        cart
+        cart,
+        sellerid:users.sellerid
       })
     }
     catch(err){
@@ -980,17 +985,44 @@ const userCtrl = {
         
         if(!docs) return res.status(400).json({msg:'Not able to search.'});
 
-        const subs = [];
+        const restaurants = [];
         docs.forEach(obj=>{
             subs.push(obj);
         });
 
-        return res.status(200).json(subs);
+        return res.status(200).json(restaurants);
     } catch (err) {
         console.log(err);
         return res.status(400).json(err);
     }
-}
+},
+  profileimage:async(req,res) =>{
+    try{    
+      let token=req.headers['accesstoken'] || req.headers['authorization'];
+      token = token.replace(/^Bearer\s+/, "");
+      const decode = await jwt.decode(token,"jwtsecret");
+      const user_id=decode.id;
+      let id = mongoose.Types.ObjectId(user_id);
+      
+      const user = await UserModel.findById(id);
+      
+      if(!user)throw new Error("id incorrect");
+
+            let filepath = null;
+
+            if(req.file !== undefined){
+                filepath = 'uploads/' + req.file.filename;
+            }
+      user.profileimgpath=filepath;
+      user.save();
+      return res.status(200).json({msg:"image added"});
+    } catch(err) {
+      console.log(err);
+      return res.status(400).json(err);
+    }
+  },
+  
+  
 }
 
 
