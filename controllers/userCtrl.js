@@ -29,12 +29,7 @@ const userCtrl = {
       email = email.toLowerCase();
       const users = await UserModel.findOne({ email });
       if (!users) {
-        // if (password !== cpassword) {
-        //   throw new Error("Password and confirm password do not match!");
-        // }
-        // if (contact.length > 13) {
-        //   throw new Error("Incorrect Credentials");
-        // }
+        
         const passwordHash = await bcrypt.hash(password, 12);
         const user = UserModel({
           username,
@@ -198,12 +193,11 @@ const userCtrl = {
       const userotpold = await otpModel.findOne({ email });
 
       if (userotpold && userotpold.verify) throw Error("User Already Verified");
-      //  userotp.deleteOne();
-      // otpModel.deleteOne({ email });
+      
       if (!user) throw new Error("User does not exist");
       if (!user.verify) throw new Error("User Not verified.");
 
-      // if(userotp.verify) throw new Error("Forgot password verification already completed")
+      
       let userotp,users;
       if (!userotpold) {
         userotp = otpModel({
@@ -425,61 +419,6 @@ const userCtrl = {
         return res.status(400).json({msg:err.message});
     }
   },
-  // addtocart:async(req,res)=>{
-  //   try{
-  //     const{seller_id,food_id,user_id}=req.body;
-  //     const fooddetails=await sellerModel.findById(seller_id);
-  //     const{food_list}=fooddetails;
-  //     let cartfoodlist;
-  //     food_list.forEach(foodlist=>{
-  //       if(foodlist._id==food_id)
-  //       {
-  //         cartfoodlist=foodlist;
-  //       }
-  //     })
-      
-  //     var foodname=cartfoodlist.foodname;
-  //     var food_price=cartfoodlist.food_price;
-  //     const user=await UserModel.findById(user_id);
-  //     const {cart}=user;
-  //     let cartinfotemp=null;
-  //     let i=0;
-  //     let j;
-  //     cart.forEach(cartinfo=>{
-  //       if(cartinfo.foodname==foodname)
-  //       {
-  //         cartinfotemp=cartinfo;
-  //         j=i;
-
-  //       }
-  //       i++;
-        
-  //     })
-  //     if(cartinfotemp!=null)
-  //     {
-  //       foodname=cartinfotemp.foodname;
-  //       food_price=cartinfotemp.food_price;
-  //       let quantity=cartinfotemp.quantity+1;
-  //       cart.splice(j,1);
-  //       const newcart=[...cart,{foodname,food_price,quantity}];
-
-  //       const result=await UserModel.findByIdAndUpdate({_id:user_id},{cart:newcart},{new: true});  
-  //     }
-  //     else{
-  //       var quantity=1;
-  //       const newcart=[...cart,{foodname,food_price,quantity}];
-
-  //       const result=await UserModel.findByIdAndUpdate({_id:user_id},{cart:newcart},{new: true});
-  //     }
-  //     res.status(200).json({
-  //       success: true,
-  //       msg: "addedtocart",
-  //     })
-  //   }
-  //   catch(err){
-  //     return res.status(400).json({ msg: err.message });
-  //   }
-  // },
 
   addtocart:async(req,res)=>{
     try{
@@ -754,38 +693,7 @@ const userCtrl = {
 
 
 
-  // feed:async(req,res)=>{
-  //   try{
-  //     const {user_id}=req.body;
-  //     // const topcomm = await subSpace.find().sort({members:-1}).limit(5);
-  //     // const posts = await Post.find().sort({createdAt:-1}).limit(10);
-  //     // return res.status(200).json({topcomm,posts});
-  //       const nearby = await UserModel.findById(user_id);
-  //       // console.log(nearby);
-  //     if(!nearby)throw new Error("id incorrect");
-  //     near=nearby.nearme;
-  //     res.status(200).json({
-  //       success: true,
-  //       msg: "Feed sent successfully",
-  //       near,
-  //     })
-
-  //   }
-  //   catch(err){
-  //     // return res.status(400).json({ msg:"unable to send feed" });
-  //     return res.status(400).json({ msg:err.msg });
-  //   }
-  // },
-//   getmoreposts: async (req,res) => {
-//     try {
-//         const {num} = req.body;
-//         const posts = await Post.find().sort({createdAt:-1}).skip(10*num).limit(10);
-//         return res.status(200).json(posts);
-//     } catch (err) {
-//         console.log(err);
-//         return res.status(400).json({ msg:err.msg });
-//     }
-// },
+  // 
   feed:async(req,res)=>{
     try{
       let token=req.headers['accesstoken'] || req.headers['authorization'];
@@ -795,12 +703,7 @@ const userCtrl = {
         
         let id = mongoose.Types.ObjectId(user_id);
       
-      // text=toString(user_id);
-      // console.log(id);
-      // const topcomm = await subSpace.find().sort({members:-1}).limit(5);
-      // const posts = await Post.find().sort({createdAt:-1}).limit(10);
-      // return res.status(200).json({topcomm,posts});
-
+    
         const nearby = await UserModel.findById(id);
         console.log(id);
         if(nearby.nearme.length==0)throw new Error("nothing nearby");
@@ -819,16 +722,7 @@ const userCtrl = {
       return res.status(400).json({ success:false,msg:err.message });
     }
   },
-//   getmoreposts: async (req,res) => {
-//     try {
-//         const {num} = req.body;
-//         const posts = await Post.find().sort({createdAt:-1}).skip(10*num).limit(10);
-//         return res.status(200).json(posts);
-//     } catch (err) {
-//         console.log(err);
-//         return res.status(400).json({ msg:err.msg });
-//     }
-// },
+
   location:async(req,res)=>{
     try{
       const{latitude,longitude}=req.body;
@@ -865,7 +759,7 @@ const userCtrl = {
       const userlong=longitude;
       // const restlong=restaurant.longitude;
       const circle = {
-          center: [userlat, userlong], // red pyramid in Giza, Egypt
+          center: [userlat, userlong], 
           radius: 10000 // 10km
       }
       staterestaurants.forEach(restaurant=>{
@@ -897,25 +791,12 @@ const userCtrl = {
   },
   restaurant:async(req,res)=>{
     try{
-      // let token=req.headers['accesstoken'] || req.headers['authorization'];
-      //   token = token.replace(/^Bearer\s+/, "");
-      //   const decode = await jwt.decode(token,"jwtsecret");
-      //   const seller_id=decode.id;
-        
-      //   let id = mongoose.Types.ObjectId(seller_id);
       
-      // text=toString(user_id);
-      // console.log(id);
-      // const topcomm = await subSpace.find().sort({members:-1}).limit(5);
-      // const posts = await Post.find().sort({createdAt:-1}).limit(10);
-      // return res.status(200).json({topcomm,posts});
         const id=req.params.id;
         const seller = await sellerModel.findById(id);
-        // console.log(id);
-        // if(nearby.nearme.length==0)throw new Error("nothing nearby");
+        
       if(!seller)throw new Error("id incorrect");
-      // console.log(near);
-      // near=nearby.nearme;
+      
       res.status(200).json({
         success: true,
         msg: "Seller sent successfully",
