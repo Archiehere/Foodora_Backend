@@ -43,8 +43,32 @@ const userSchema = mongoose.Schema({
     quantity:{
       type:Number,
       default:null
+    },
+    rating:{
+      type:Number,
+      default:0
     }
-}],
+  }],
+  orderhistory:[{
+    foodname:{
+        type:String,
+        // unique:true,
+    },
+    food_price:{
+
+        type:Number,
+        
+    },
+    quantity:{
+      type:Number,
+      default:null
+    },
+    rating:{
+      type:Number,
+      default:0
+    }
+  }]
+
   
   
   // contact:{

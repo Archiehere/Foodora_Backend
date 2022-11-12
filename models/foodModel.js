@@ -79,6 +79,10 @@ const foodSchema=mongoose.Schema({
         food_category:{
             type:String,
         },
+        food_rating:{
+            type:Number,
+            default:0
+        },
         imgpath:{
             type:String,
             default:"uploads/1668230968407-Screenshot_20221023_043313.png"
