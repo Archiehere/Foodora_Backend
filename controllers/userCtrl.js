@@ -593,8 +593,13 @@ const userCtrl = {
           quantity=0;
           
         cart.splice(j,1);
+        if(quantity>0){
         const newcart=[...cart,{foodname,food_price,quantity}];
         const result=await UserModel.findByIdAndUpdate({_id:user_id},{cart:newcart},{new: true});  
+        }
+        else{
+          const result=await UserModel.findByIdAndUpdate({_id:user_id},{cart:cart},{new: true});
+        }
       }
       else{
       var quantity=1;
