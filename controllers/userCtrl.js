@@ -476,14 +476,16 @@ const userCtrl = {
           let quantity=cartinfotemp.quantity+1;
           cart.splice(j,1);
           const newcart=[...cart,{foodname,food_price,quantity}];
-
-          const result=await UserModel.findByIdAndUpdate({_id:id},{cart:newcart},{new: true});  
+          // const seller =await sellerModel.findByIdAndUpdate({_id:user.sellerid},{ $push: { orders: user.cart }});
+          // const result=await UserModel.findByIdAndUpdate({_id:id},{$push:{cart:{foodname,food_price,quantity}}},{new: true});  
+          const result1=await UserModel.findByIdAndUpdate({_id:id},{cart:newcart},{new: true});
           const result2=await UserModel.findByIdAndUpdate({_id:id},{sellerid:sellerid},{new: true}); 
         }
         else{
           var quantity=1;
-          const newcart=[...cart,{foodname,food_price,quantity}];
-          const result1=await UserModel.findByIdAndUpdate({_id:id},{cart:newcart},{new: true});
+          // const newcart=[...cart,{foodname,food_price,quantity}];
+          // const result1=await UserModel.findByIdAndUpdate({_id:id},{cart:newcart},{new: true});
+          const result=await UserModel.findByIdAndUpdate({_id:id},{$push:{cart:{foodname,food_price,quantity}}},{new: true});
           const result2=await UserModel.findByIdAndUpdate({_id:id},{sellerid:sellerid},{new: true});  
         }
         
@@ -557,8 +559,9 @@ const userCtrl = {
           
         cart.splice(j,1);
         if(quantity>0){
-        const newcart=[...cart,{foodname,food_price,quantity}];
-        const result=await UserModel.findByIdAndUpdate({_id:id},{cart:newcart},{new: true});
+        // const newcart=[...cart,{foodname,food_price,quantity}];
+        // const result=await UserModel.findByIdAndUpdate({_id:id},{cart:newcart},{new: true});
+        const result=await UserModel.findByIdAndUpdate({_id:id},{$push:{cart:{foodname,food_price,quantity}}},{new: true});
         }
         else{
           const result=await UserModel.findByIdAndUpdate({_id:id},{cart:cart},{new: true});
