@@ -5,7 +5,7 @@ const Upload = require('../middleware/upload');
 
 
 router.post('/register',userCtrl.register);
-router.get("/getuser", auth, userCtrl.getUsers);
+// router.get("/getuser", auth, userCtrl.getUsers);
 router.post('/verify/send',userCtrl.sendOTP);
 router.post('/verify',userCtrl.verify);
 router.post('/signin',userCtrl.signin);
@@ -18,17 +18,17 @@ router.post('/forgot/reset',userCtrl.resetpass);
 // router.post('/logout',userCtrl.logout);
 // router.get("/refresh_token", userCtrl.refreshToken);
 // router.post('/forgot',userCtrl.verify);
-router.post("/userprofile",userCtrl.userprofile);
-router.post("/profileimage",Upload.uploadImg.single('image'),userCtrl.profileimage);
-router.post("/addtocart",userCtrl.addtocart);
-router.post("/removefromcart",userCtrl.removefromcart);
-router.post("/viewcart",userCtrl.viewcart);
-router.post("/fooditemcount",userCtrl.send_count_of_fooditem);
-router.post("/location",userCtrl.location);
-router.get("/feed",userCtrl.feed);
-router.get("/restaurant/:id",userCtrl.restaurant);
-router.post("/checkout",userCtrl.checkout);
-router.post("/search",userCtrl.search);
-router.post("/fooddetails",userCtrl.fooddetails);
+router.post("/userprofile",auth,userCtrl.userprofile);
+router.post("/profileimage",auth,Upload.uploadImg.single('image'),userCtrl.profileimage);
+router.post("/addtocart",auth,userCtrl.addtocart);
+router.post("/removefromcart",auth,userCtrl.removefromcart);
+router.post("/viewcart",auth,userCtrl.viewcart);
+router.post("/fooditemcount",auth,userCtrl.send_count_of_fooditem);
+router.post("/location",auth,userCtrl.location);
+router.get("/feed",auth,userCtrl.feed);
+router.get("/restaurant/:id",auth,userCtrl.restaurant);
+router.post("/checkout",auth,userCtrl.checkout);
+router.post("/search",auth,userCtrl.search);
+router.post("/fooddetails",auth,userCtrl.fooddetails);
 
 module.exports = router;

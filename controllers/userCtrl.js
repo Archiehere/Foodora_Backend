@@ -397,7 +397,12 @@ const userCtrl = {
   // },
   userprofile:async(req,res)=>{
     try{
-      const id=req.body;
+      let token=req.headers['accesstoken'] || req.headers['authorization'];
+      token = token.replace(/^Bearer\s+/, "");
+      const decode = await jwt.decode(token,"jwtsecret");
+      const user_id=decode.id;
+        
+      const id = mongoose.Types.ObjectId(user_id);
       console.log(id);
       if(!id)throw new Error("No user exists !")
       const userDetails=await UserModel.findById(id);
@@ -478,7 +483,14 @@ const userCtrl = {
 
   addtocart:async(req,res)=>{
     try{
-      let{seller_id,food_id,user_id}=req.body;
+      let{seller_id,food_id}=req.body;
+      let token=req.headers['accesstoken'] || req.headers['authorization'];
+      token = token.replace(/^Bearer\s+/, "");
+      const decode = await jwt.decode(token,"jwtsecret");
+      const user_id=decode.id;
+        
+      let id = mongoose.Types.ObjectId(user_id);
+
       const fooddetails=await sellerModel.findById(seller_id);
       const{food_list}=fooddetails;
       let cartfoodlist;
@@ -493,7 +505,7 @@ const userCtrl = {
       console.log(cartfoodlist);
       var foodname=cartfoodlist.foodname;
       var food_price=cartfoodlist.food_price;
-      const user=await UserModel.findById(user_id);
+      const user=await UserModel.findById(id);
       let {sellerid}=user;
       console.log(sellerid);
       if(seller_id==sellerid || sellerid=="")
@@ -526,14 +538,14 @@ const userCtrl = {
           cart.splice(j,1);
           const newcart=[...cart,{foodname,food_price,quantity}];
 
-          const result=await UserModel.findByIdAndUpdate({_id:user_id},{cart:newcart},{new: true});  
-          const result2=await UserModel.findByIdAndUpdate({_id:user_id},{sellerid:sellerid},{new: true}); 
+          const result=await UserModel.findByIdAndUpdate({_id:id},{cart:newcart},{new: true});  
+          const result2=await UserModel.findByIdAndUpdate({_id:id},{sellerid:sellerid},{new: true}); 
         }
         else{
           var quantity=1;
           const newcart=[...cart,{foodname,food_price,quantity}];
-          const result1=await UserModel.findByIdAndUpdate({_id:user_id},{cart:newcart},{new: true});
-          const result2=await UserModel.findByIdAndUpdate({_id:user_id},{sellerid:sellerid},{new: true});  
+          const result1=await UserModel.findByIdAndUpdate({_id:id},{cart:newcart},{new: true});
+          const result2=await UserModel.findByIdAndUpdate({_id:id},{sellerid:sellerid},{new: true});  
         }
         
       }
@@ -542,8 +554,8 @@ const userCtrl = {
         quantity=1;
         sellerid=seller_id;
         const newcart=[{foodname,food_price,quantity}];
-        const result=await UserModel.findByIdAndUpdate({_id:user_id},{cart:newcart},{new: true});  
-        const result2=await UserModel.findByIdAndUpdate({_id:user_id},{sellerid:sellerid},{new: true}); 
+        const result=await UserModel.findByIdAndUpdate({_id:id},{cart:newcart},{new: true});  
+        const result2=await UserModel.findByIdAndUpdate({_id:id},{sellerid:sellerid},{new: true}); 
       }
       res.status(200).json({
         success: true,
@@ -559,7 +571,14 @@ const userCtrl = {
 
   removefromcart:async(req,res)=>{
     try{
-      const{seller_id,food_id,user_id}=req.body;
+      const{seller_id,food_id}=req.body;
+      let token=req.headers['accesstoken'] || req.headers['authorization'];
+      token = token.replace(/^Bearer\s+/, "");
+      const decode = await jwt.decode(token,"jwtsecret");
+      const user_id=decode.id;
+        
+      const id = mongoose.Types.ObjectId(user_id);
+
       const fooddetails=await sellerModel.findById(seller_id);
       console.log(fooddetails);
       const{food_list}=fooddetails;
@@ -574,7 +593,7 @@ const userCtrl = {
       
       var foodname=cartfoodlist.foodname;
       var food_price=cartfoodlist.food_price;
-      const user=await UserModel.findById(user_id);
+      const user=await UserModel.findById(id);
       const {cart}=user;
       let cartinfotemp=null;
       let i=0;
@@ -600,16 +619,16 @@ const userCtrl = {
         cart.splice(j,1);
         if(quantity>0){
         const newcart=[...cart,{foodname,food_price,quantity}];
-        const result=await UserModel.findByIdAndUpdate({_id:user_id},{cart:newcart},{new: true});
+        const result=await UserModel.findByIdAndUpdate({_id:id},{cart:newcart},{new: true});
         }
         else{
-          const result=await UserModel.findByIdAndUpdate({_id:user_id},{cart:cart},{new: true});
+          const result=await UserModel.findByIdAndUpdate({_id:id},{cart:cart},{new: true});
         }
       }
       else{
       var quantity=1;
       const newcart=[...cart,{foodname,food_price,quantity}];
-      const result=await UserModel.findByIdAndUpdate({_id:user_id},{cart:newcart},{new: true});
+      const result=await UserModel.findByIdAndUpdate({_id:id},{cart:newcart},{new: true});
       }
       res.status(200).json({
         success: true,
@@ -625,8 +644,13 @@ const userCtrl = {
 
   viewcart:async(req,res)=>{
     try{
-      const{user_id}=req.body;
-      const users=await UserModel.findById(user_id);
+      let token=req.headers['accesstoken'] || req.headers['authorization'];
+      token = token.replace(/^Bearer\s+/, "");
+      const decode = await jwt.decode(token,"jwtsecret");
+      const user_id=decode.id;
+        
+      let id = mongoose.Types.ObjectId(user_id);
+      const users=await UserModel.findById(id);
       const {cart}=users;
       // if(users.cart=[])throw new Error("cart empty");
         res.status(200).json({
@@ -683,8 +707,15 @@ const userCtrl = {
 
   send_count_of_fooditem:async(req,res)=>{
     try{
-      const{foodname,seller_id,user_id}=req.body;
-      const users=await UserModel.findById(user_id);
+      const{foodname,seller_id}=req.body;
+      let token=req.headers['accesstoken'] || req.headers['authorization'];
+      token = token.replace(/^Bearer\s+/, "");
+      const decode = await jwt.decode(token,"jwtsecret");
+      const user_id=decode.id;
+      
+      let id = mongoose.Types.ObjectId(user_id);
+
+      const users=await UserModel.findById(id);
       const {sellerid}=users;
       let count;
       if(sellerid!=seller_id){
@@ -800,9 +831,17 @@ const userCtrl = {
 // },
   location:async(req,res)=>{
     try{
-      const{latitude,longitude,user_id}=req.body;
+      const{latitude,longitude}=req.body;
+      let token=req.headers['accesstoken'] || req.headers['authorization'];
+      token = token.replace(/^Bearer\s+/, "");
+      const decode = await jwt.decode(token,"jwtsecret");
+      const user_id=decode.id;
+        
+      const id = mongoose.Types.ObjectId(user_id);
+
+
       // console.log(latitude,longitude);
-      const user=await UserModel.findById(user_id);
+      const user=await UserModel.findById(id);
       if(!user)throw new Error("id incorrect");
       // let{nearme}=user;
       let near=[];
@@ -933,7 +972,7 @@ const userCtrl = {
 
         const restaurants = [];
         docs.forEach(obj=>{
-            subs.push(obj);
+            restaurants.push(obj);
         });
 
         return res.status(200).json(restaurants);

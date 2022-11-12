@@ -2,7 +2,8 @@ const jwt = require("jsonwebtoken");
 
 const auth = (req, res, next) => {
   try {
-    const token = req.header("Authorization");
+    let token = req.header("Authorization");
+    // console.log(token);
     if (!token) return res.status(400).json({ msg: "Please login before proceeding any further !" });
     token = token.replace(/^Bearer\s+/, "");
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
