@@ -644,18 +644,21 @@ const userCtrl = {
       let foodname;
       let foodprice;
       let fooddesc;
+      let foodimg;
       if(tempfoodinfo!=null)
       {
         foodname=tempfoodinfo.foodname;
         foodprice=tempfoodinfo.food_price;
         fooddesc=tempfoodinfo.food_desc;
+        foodimg=tempfoodinfo.imgpath;
       }
       res.status(200).json({
         success:true,
         message:"food sent successfuly !",
         foodname,
         foodprice,
-        fooddesc
+        fooddesc,
+        foodimg
       })
 
 
