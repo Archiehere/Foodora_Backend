@@ -375,7 +375,15 @@ const foodCtrl={
     registerrestaurant:async(req,res)=>{
         try{
             let currstate,currlatitude,loc=true,currlongitude;
-            const{restaurantname,mobilenumber,restaurantaddress,pincode,restaurant_openingtime,restaurant_closingtime,id}=req.body;
+            const{restaurantname,mobilenumber,restaurantaddress,pincode,restaurant_openingtime,restaurant_closingtime}=req.body;
+            let token=req.headers['accesstoken'] || req.headers['authorization'];
+            token = token.replace(/^Bearer\s+/, "");
+            const decode = await jwt.decode(token,"jwtsecret");
+            const _id=decode.id;
+              
+            const id = mongoose.Types.ObjectId(_id);
+
+
            await geoCoder.geocode(restaurantaddress)
             .then((res)=> {
               if(res.length==0)loc=false;
@@ -438,7 +446,16 @@ const foodCtrl={
 
             // })
 
-            const{foodname,food_price,food_desc,food_category,id}=req.body;
+            const{foodname,food_price,food_desc,food_category}=req.body;
+
+            let token=req.headers['accesstoken'] || req.headers['authorization'];
+            token = token.replace(/^Bearer\s+/, "");
+            const decode = await jwt.decode(token,"jwtsecret");
+            const _id=decode.id;
+              
+            const id = mongoose.Types.ObjectId(_id);
+
+
             let filepath = null;
 
             if(req.file !== undefined){
@@ -490,7 +507,12 @@ const foodCtrl={
     },
     sellerprofile:async(req,res)=>{
         try{
-          const id=req.body;
+          let token=req.headers['accesstoken'] || req.headers['authorization'];
+          token = token.replace(/^Bearer\s+/, "");
+          const decode = await jwt.decode(token,"jwtsecret");
+          const _id=decode.id;
+            
+          const id = mongoose.Types.ObjectId(_id);
           console.log(id);
           if(!id)throw new Error("No user exists !")
           const sellerDetails=await sellerModel.findById(id);

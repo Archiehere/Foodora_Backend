@@ -397,7 +397,12 @@ const userCtrl = {
   // },
   userprofile:async(req,res)=>{
     try{
-      const id=req.body;
+      let token=req.headers['accesstoken'] || req.headers['authorization'];
+      token = token.replace(/^Bearer\s+/, "");
+      const decode = await jwt.decode(token,"jwtsecret");
+      const user_id=decode.id;
+        
+      const id = mongoose.Types.ObjectId(user_id);
       console.log(id);
       if(!id)throw new Error("No user exists !")
       const userDetails=await UserModel.findById(id);
