@@ -417,65 +417,9 @@ const userCtrl = {
         return res.status(400).json({msg:err.message});
     }
   },
-  addtocart:async(req,res)=>{
-    try{
-      const{seller_id,food_id,user_id}=req.body;
-      const fooddetails=await sellerModel.findById(seller_id);
-      const{food_list}=fooddetails;
-      let cartfoodlist;
-      food_list.forEach(foodlist=>{
-        if(foodlist._id==food_id)
-        {
-          cartfoodlist=foodlist;
-        }
-      })
-      
-      var foodname=cartfoodlist.foodname;
-      var food_price=cartfoodlist.food_price;
-      const user=await UserModel.findById(user_id);
-      const {cart}=user;
-      let cartinfotemp=null;
-      let i=0;
-      let j;
-      cart.forEach(cartinfo=>{
-        if(cartinfo.foodname==foodname)
-        {
-          cartinfotemp=cartinfo;
-          j=i;
-
-        }
-        i++;
-        
-      })
-      if(cartinfotemp!=null)
-      {
-        foodname=cartinfotemp.foodname;
-        food_price=cartinfotemp.food_price;
-        let quantity=cartinfotemp.quantity+1;
-        cart.splice(j,1);
-        const newcart=[...cart,{foodname,food_price,quantity}];
-
-        const result=await UserModel.findByIdAndUpdate({_id:user_id},{cart:newcart},{new: true});  
-      }
-      else{
-        var quantity=1;
-        const newcart=[...cart,{foodname,food_price,quantity}];
-
-        const result=await UserModel.findByIdAndUpdate({_id:user_id},{cart:newcart},{new: true});
-      }
-      res.status(200).json({
-        success: true,
-        msg: "addedtocart",
-      })
-    }
-    catch(err){
-      return res.status(400).json({ msg: err.message });
-    }
-  },
-
   // addtocart:async(req,res)=>{
   //   try{
-  //     let{seller_id,food_id,user_id}=req.body;
+  //     const{seller_id,food_id,user_id}=req.body;
   //     const fooddetails=await sellerModel.findById(seller_id);
   //     const{food_list}=fooddetails;
   //     let cartfoodlist;
@@ -484,59 +428,40 @@ const userCtrl = {
   //       {
   //         cartfoodlist=foodlist;
   //       }
-  //     })  
+  //     })
+      
   //     var foodname=cartfoodlist.foodname;
   //     var food_price=cartfoodlist.food_price;
   //     const user=await UserModel.findById(user_id);
-  //     let {sellerid}=user;
-  //     console.log(sellerid);
-  //     if(seller_id==sellerid || sellerid=="")
-  //     {
-  //       if(sellerid=="")
+  //     const {cart}=user;
+  //     let cartinfotemp=null;
+  //     let i=0;
+  //     let j;
+  //     cart.forEach(cartinfo=>{
+  //       if(cartinfo.foodname==foodname)
   //       {
-  //         sellerid=seller_id;
-  //       }
-  //       console.log(sellerid);
-  //       const {cart}=user;
-  //       console.log(cart);
-  //       let cartinfotemp=null;
-  //       let i=0;
-  //       let j;
-  //       cart.forEach(cartinfo=>{
-  //         if(cartinfo.foodname==foodname)
-  //         {
-  //           cartinfotemp=cartinfo;
-  //           j=i;
+  //         cartinfotemp=cartinfo;
+  //         j=i;
 
-  //         }
-  //         i++;
-          
-  //       })
-  //       if(cartinfotemp!=null)
-  //       {
-  //         foodname=cartinfotemp.foodname;
-  //         food_price=cartinfotemp.food_price;
-  //         let quantity=cartinfotemp.quantity+1;
-  //         cart.splice(j,1);
-  //         const newcart=[...cart,{foodname,food_price,quantity}];
-
-  //         const result=await UserModel.findByIdAndUpdate({_id:user_id},{cart:newcart},{new: true});  
-  //         const result2=await UserModel.findByIdAndUpdate({_id:user_id},{sellerid:sellerid},{new: true}); 
   //       }
-  //       else{
-  //         var quantity=1;
-  //         const newcart=[...cart,{foodname,food_price,quantity}];
-  //         const result1=await UserModel.findByIdAndUpdate({_id:user_id},{cart:newcart},{new: true});
-  //         const result2=await UserModel.findByIdAndUpdate({_id:user_id},{sellerid:sellerid},{new: true});  
-  //       }
+  //       i++;
         
-  //     }
-  //     else
+  //     })
+  //     if(cartinfotemp!=null)
   //     {
-  //       sellerid=seller_id;
-  //       const newcart=[{foodname,food_price,quantity}];
+  //       foodname=cartinfotemp.foodname;
+  //       food_price=cartinfotemp.food_price;
+  //       let quantity=cartinfotemp.quantity+1;
+  //       cart.splice(j,1);
+  //       const newcart=[...cart,{foodname,food_price,quantity}];
+
   //       const result=await UserModel.findByIdAndUpdate({_id:user_id},{cart:newcart},{new: true});  
-  //       const result2=await UserModel.findByIdAndUpdate({_id:user_id},{sellerid:sellerid},{new: true}); 
+  //     }
+  //     else{
+  //       var quantity=1;
+  //       const newcart=[...cart,{foodname,food_price,quantity}];
+
+  //       const result=await UserModel.findByIdAndUpdate({_id:user_id},{cart:newcart},{new: true});
   //     }
   //     res.status(200).json({
   //       success: true,
@@ -547,6 +472,86 @@ const userCtrl = {
   //     return res.status(400).json({ msg: err.message });
   //   }
   // },
+
+  addtocart:async(req,res)=>{
+    try{
+      let{seller_id,food_id,user_id}=req.body;
+      const fooddetails=await sellerModel.findById(seller_id);
+      const{food_list}=fooddetails;
+      let cartfoodlist;
+      console.log(food_id);
+      food_list.forEach(foodlist=>{
+        console.log(foodlist._id);
+        if(foodlist._id==food_id)
+        {
+          cartfoodlist=foodlist;
+        }
+      })  
+      console.log(cartfoodlist);
+      var foodname=cartfoodlist.foodname;
+      var food_price=cartfoodlist.food_price;
+      const user=await UserModel.findById(user_id);
+      let {sellerid}=user;
+      console.log(sellerid);
+      if(seller_id==sellerid || sellerid=="")
+      {
+        if(sellerid=="")
+        {
+          sellerid=seller_id;
+        }
+        console.log(sellerid);
+        const {cart}=user;
+        console.log(cart);
+        let cartinfotemp=null;
+        let i=0;
+        let j;
+        cart.forEach(cartinfo=>{
+          if(cartinfo.foodname==foodname)
+          {
+            cartinfotemp=cartinfo;
+            j=i;
+
+          }
+          i++;
+          
+        })
+        if(cartinfotemp!=null)
+        {
+          foodname=cartinfotemp.foodname;
+          food_price=cartinfotemp.food_price;
+          let quantity=cartinfotemp.quantity+1;
+          cart.splice(j,1);
+          const newcart=[...cart,{foodname,food_price,quantity}];
+
+          const result=await UserModel.findByIdAndUpdate({_id:user_id},{cart:newcart},{new: true});  
+          const result2=await UserModel.findByIdAndUpdate({_id:user_id},{sellerid:sellerid},{new: true}); 
+        }
+        else{
+          var quantity=1;
+          const newcart=[...cart,{foodname,food_price,quantity}];
+          const result1=await UserModel.findByIdAndUpdate({_id:user_id},{cart:newcart},{new: true});
+          const result2=await UserModel.findByIdAndUpdate({_id:user_id},{sellerid:sellerid},{new: true});  
+        }
+        
+      }
+      else
+      {
+        quantity=1;
+        sellerid=seller_id;
+        const newcart=[{foodname,food_price,quantity}];
+        const result=await UserModel.findByIdAndUpdate({_id:user_id},{cart:newcart},{new: true});  
+        const result2=await UserModel.findByIdAndUpdate({_id:user_id},{sellerid:sellerid},{new: true}); 
+      }
+      res.status(200).json({
+        success: true,
+        msg: "addedtocart",
+      })
+    }
+    catch(err){
+      console.log(err);
+      return res.status(400).json({ msg: err.message });
+    }
+  },
 
 
   removefromcart:async(req,res)=>{
@@ -929,13 +934,15 @@ const userCtrl = {
         let id = mongoose.Types.ObjectId(user_id);
         const user = await UserModel.findById(id);
         if(user.cart.length==0)throw new Error("Cart is Empty");
-        
-         
+        // console.log(user.sellerid);
+        const seller =await sellerModel.findByIdAndUpdate({_id:user.sellerid},{ $push: { orders: user.cart }});
+        // seller.save(); 
     
         res.status(200).json({
           success: true,
           msg: "checkout successful",
-          user,
+          // user,
+          seller,
   
         });
     }

@@ -57,6 +57,9 @@ const foodSchema=mongoose.Schema({
         type:Boolean,
         required:false,
       },
+    orders:{
+        type:Array,
+    },
     food_list:[{
         foodname:{
             type:String,
