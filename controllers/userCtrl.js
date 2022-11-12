@@ -668,25 +668,31 @@ const userCtrl = {
 
   send_count_of_fooditem:async(req,res)=>{
     try{
-      const{foodname,user_id}=req.body;
+      const{foodname,seller_id,user_id}=req.body;
       const users=await UserModel.findById(user_id);
-      const  {cart}=users;
-      let count=0;
-      let tempcartinfo=null;
-      cart.forEach(cartinfo=>{
-        if(cartinfo.foodname==foodname)
-        {
-          tempcartinfo=cartinfo;
-        }
-      })
-      if(tempcartinfo==null)
-      {
+      const {sellerid}=users;
+      let count;
+      if(sellerid!=seller_id){
         count=0;
       }
       else{
-        count=tempcartinfo.quantity;
+        const  {cart}=users;
+        
+        let tempcartinfo=null;
+        cart.forEach(cartinfo=>{
+          if(cartinfo.foodname==foodname)
+          {
+            tempcartinfo=cartinfo;
+          }
+        })
+        if(tempcartinfo==null)
+        {
+          count=0;
+        }
+        else{
+          count=tempcartinfo.quantity;
+        }
       }
-
       res.status(200).json({
         success:true,
         message:"count sent successfully !",
