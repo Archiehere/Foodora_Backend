@@ -511,7 +511,39 @@ const foodCtrl={
         catch (err){
             return res.status(400).json({msg:err.message});
         }
-      }
+      },
+      // setorderstatus:async(req,res)=>{
+      //   try{
+      //     let token=req.headers['accesstoken'] || req.headers['authorization'];
+      //       token = token.replace(/^Bearer\s+/, "");
+      //       const decode = await jwt.decode(token,"jwtsecret");
+      //       const user_id=decode.id;
+      //       let id = mongoose.Types.ObjectId(user_id);
+            
+      //       const user = await UserModel.findById(id);
+            
+      //       if(!user)throw new Error("id incorrect");
+      //       if(user.cart.length==0)throw new Error("Cart is Empty");
+      //       // console.log(user.sellerid);
+      //       const seller =await sellerModel.findByIdAndUpdate({_id:user.sellerid},{ $push: { orders: user.cart }});
+      //       // seller.save(); 
+      //       user.cart=[];
+      //       user.save();
+        
+      //       res.status(200).json({
+      //         success: true,
+      //         msg: "checkout successful",
+      //         // user,
+      //         seller,
+              
+      //       });
+      //   }
+      //   catch (err){
+      //     console.log(err);
+      //       return res.status(400).json({success:false,msg:err.message});
+      //   }
+      // },
+      
 }
 const createAccessToken = (user) => {
   return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "1d" });

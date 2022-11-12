@@ -559,6 +559,7 @@ const userCtrl = {
     try{
       const{seller_id,food_id,user_id}=req.body;
       const fooddetails=await sellerModel.findById(seller_id);
+      console.log(fooddetails);
       const{food_list}=fooddetails;
       let cartfoodlist;
       food_list.forEach(foodlist=>{
@@ -567,6 +568,7 @@ const userCtrl = {
           cartfoodlist=foodlist;
         }
       })
+      console.log(cartfoodlist);
       
       var foodname=cartfoodlist.foodname;
       var food_price=cartfoodlist.food_price;
@@ -594,8 +596,13 @@ const userCtrl = {
           quantity=0;
           
         cart.splice(j,1);
+        if(quantity>0){
         const newcart=[...cart,{foodname,food_price,quantity}];
-        const result=await UserModel.findByIdAndUpdate({_id:user_id},{cart:newcart},{new: true});  
+        const result=await UserModel.findByIdAndUpdate({_id:user_id},{cart:newcart},{new: true});
+        }
+        else{
+          const result=await UserModel.findByIdAndUpdate({_id:user_id},{cart:cart},{new: true});
+        }
       }
       else{
       var quantity=1;
@@ -1014,37 +1021,7 @@ const userCtrl = {
       return res.status(400).json(err);
     }
   },
-  setorderstatus:async(req,res)=>{
-    try{
-      let token=req.headers['accesstoken'] || req.headers['authorization'];
-        token = token.replace(/^Bearer\s+/, "");
-        const decode = await jwt.decode(token,"jwtsecret");
-        const user_id=decode.id;
-        let id = mongoose.Types.ObjectId(user_id);
-        
-        const user = await UserModel.findById(id);
-        
-        if(!user)throw new Error("id incorrect");
-        if(user.cart.length==0)throw new Error("Cart is Empty");
-        // console.log(user.sellerid);
-        const seller =await sellerModel.findByIdAndUpdate({_id:user.sellerid},{ $push: { orders: user.cart }});
-        // seller.save(); 
-        user.cart=[];
-        user.save();
-    
-        res.status(200).json({
-          success: true,
-          msg: "checkout successful",
-          // user,
-          seller,
-          
-        });
-    }
-    catch (err){
-      console.log(err);
-        return res.status(400).json({success:false,msg:err.message});
-    }
-  },
+  
   
 }
 
