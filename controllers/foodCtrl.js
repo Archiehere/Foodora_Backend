@@ -99,8 +99,8 @@ const foodCtrl={
     },
     signin: async (req, res) => {
       try {
-        const { email, password } = req.body;
-        // email = email.toLowerCase();
+        let { email, password } = req.body;
+        email = email.toLowerCase();
         const user = await sellerModel.findOne({ email });
         if (!user) throw new Error("No user found!");
         if (!user.verify) throw new Error("User Not Verified");
@@ -349,7 +349,7 @@ const foodCtrl={
         const userotp = await otpModel.findOne({ email });
         if (!userotp) throw new Error("Verification Timed OUT");
         if (!user) throw new Error("No user found!");
-  
+        
         if (userotp.verify == true) {
           const result = await bcrypt.compare(password, user.password);
           if (result) throw new Error("Please Change to new Password");
@@ -514,7 +514,7 @@ const foodCtrl={
       }
 }
 const createAccessToken = (user) => {
-  return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "11m" });
+  return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "1d" });
 };
 
 // const createRefreshToken = (user) => {

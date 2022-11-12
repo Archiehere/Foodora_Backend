@@ -104,7 +104,8 @@ const userCtrl = {
   },
   signin: async (req, res) => {
     try {
-      const { email, password } = req.body;
+      let { email, password } = req.body;
+      email = email.toLowerCase();
       const user = await UserModel.findOne({ email });
       if (!user) throw new Error("No user found!");
       if (!user.verify) throw new Error("User Not Verified");
@@ -407,8 +408,8 @@ const userCtrl = {
         success: true,
         msg: "user details sent successfully !",
         username,
-        emailid
-
+        emailid,
+        imagepath:userDetails.profileimgpath,
       })
 
 
@@ -977,17 +978,74 @@ const userCtrl = {
         
         if(!docs) return res.status(400).json({msg:'Not able to search.'});
 
-        const subs = [];
+        const restaurants = [];
         docs.forEach(obj=>{
             subs.push(obj);
         });
 
-        return res.status(200).json(subs);
+        return res.status(200).json(restaurants);
     } catch (err) {
         console.log(err);
         return res.status(400).json(err);
     }
-}
+},
+  profileimage:async(req,res) =>{
+    try{    
+      let token=req.headers['accesstoken'] || req.headers['authorization'];
+      token = token.replace(/^Bearer\s+/, "");
+      const decode = await jwt.decode(token,"jwtsecret");
+      const user_id=decode.id;
+      let id = mongoose.Types.ObjectId(user_id);
+      
+      const user = await UserModel.findById(id);
+      
+      if(!user)throw new Error("id incorrect");
+
+            let filepath = null;
+
+            if(req.file !== undefined){
+                filepath = 'uploads/' + req.file.filename;
+            }
+      user.profileimgpath=filepath;
+      user.save();
+      return res.status(200).json({msg:"image added"});
+    } catch(err) {
+      console.log(err);
+      return res.status(400).json(err);
+    }
+  },
+  setorderstatus:async(req,res)=>{
+    try{
+      let token=req.headers['accesstoken'] || req.headers['authorization'];
+        token = token.replace(/^Bearer\s+/, "");
+        const decode = await jwt.decode(token,"jwtsecret");
+        const user_id=decode.id;
+        let id = mongoose.Types.ObjectId(user_id);
+        
+        const user = await UserModel.findById(id);
+        
+        if(!user)throw new Error("id incorrect");
+        if(user.cart.length==0)throw new Error("Cart is Empty");
+        // console.log(user.sellerid);
+        const seller =await sellerModel.findByIdAndUpdate({_id:user.sellerid},{ $push: { orders: user.cart }});
+        // seller.save(); 
+        user.cart=[];
+        user.save();
+    
+        res.status(200).json({
+          success: true,
+          msg: "checkout successful",
+          // user,
+          seller,
+          
+        });
+    }
+    catch (err){
+      console.log(err);
+        return res.status(400).json({success:false,msg:err.message});
+    }
+  },
+  
 }
 
 

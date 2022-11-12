@@ -1,6 +1,8 @@
 const userCtrl = require("../controllers/userCtrl");
 const router=require("express").Router();
 const auth = require("../middleware/auth");
+const Upload = require('../middleware/upload');
+
 
 router.post('/register',userCtrl.register);
 router.get("/getuser", auth, userCtrl.getUsers);
@@ -17,6 +19,7 @@ router.post('/forgot/reset',userCtrl.resetpass);
 // router.get("/refresh_token", userCtrl.refreshToken);
 // router.post('/forgot',userCtrl.verify);
 router.post("/userprofile",userCtrl.userprofile);
+router.post("/profileimage",Upload.uploadImg.single('image'),userCtrl.profileimage);
 router.post("/addtocart",userCtrl.addtocart);
 router.post("/removefromcart",userCtrl.removefromcart);
 router.post("/viewcart",userCtrl.viewcart);
