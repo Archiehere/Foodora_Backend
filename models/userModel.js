@@ -8,6 +8,7 @@ const userSchema = mongoose.Schema({
   },
   profileimgpath:{
     type:String,
+    default:"uploads/1668230968407-Screenshot_20221023_043313.png"
   },
   password: {
     type: String,
