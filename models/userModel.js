@@ -34,6 +34,9 @@ const userSchema = mongoose.Schema({
     type:Array,
     default:[]
   },
+  address:{
+    type:String,
+  },
   sellerid:{
     type:String,
     default:""

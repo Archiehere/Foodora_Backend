@@ -403,6 +403,7 @@ const userCtrl = {
       const username=userDetails.username
       const emailid=userDetails.email
       const orderhistory=userDetails.orderhistory
+      const useraddress=userDetails.address;
       // console.log(userDetails);
       res.status(200).json({
         success: true,
@@ -411,6 +412,7 @@ const userCtrl = {
         emailid,
         imagepath:userDetails.profileimgpath,
         orderhistory,
+        useraddress,
       })
 
 
@@ -752,7 +754,8 @@ const userCtrl = {
         .catch((err)=> {
           console.log(err);
         });
-      
+        // console.log(address);
+        useraddress=address.formattedAddress;
         const staterestaurants=await sellerModel.find({state:address.state});
         
          
@@ -776,6 +779,7 @@ const userCtrl = {
         }
       });
       // console.log(near);
+      user.address=useraddress;
       user.nearme=near;
       user.save();
       // const point = [restlat, restlong] // Alexandria... >5km away from Giza
@@ -839,6 +843,7 @@ const userCtrl = {
             });
             }
           if(!loc)throw new Error("Location not found");
+          useraddress=address.formattedAddress;
       
         const staterestaurants=await sellerModel.find({state:address.state});
         
@@ -864,6 +869,7 @@ const userCtrl = {
       });
       // console.log(near);
       user.nearme=near;
+      user.address=useraddress;
       user.save();
       // const point = [restlat, restlong] // Alexandria... >5km away from Giza
       // const inside = isInsideCircle(circle.center, point, circle.radius);
