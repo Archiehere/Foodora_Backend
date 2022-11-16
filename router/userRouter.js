@@ -25,6 +25,7 @@ router.post("/removefromcart",auth,userCtrl.removefromcart);
 router.post("/viewcart",auth,userCtrl.viewcart);
 router.post("/fooditemcount",auth,userCtrl.send_count_of_fooditem);
 router.post("/location",auth,userCtrl.location);
+router.post("/locationbyaddress",auth,userCtrl.locationbyaddress);
 router.get("/feed",auth,userCtrl.feed);
 router.get("/restaurant/:id",auth,userCtrl.restaurant);
 router.post("/checkout",auth,userCtrl.checkout);

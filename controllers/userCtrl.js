@@ -793,6 +793,93 @@ const userCtrl = {
         return res.status(400).json({success:false,msg:err.message});
     }
   },
+  locationbyaddress:async(req,res)=>{
+    try{
+      const{addr,pincode}=req.body;
+      let token=req.headers['accesstoken'] || req.headers['authorization'];
+      token = token.replace(/^Bearer\s+/, "");
+      const decode = await jwt.verify(token,process.env.ACCESS_TOKEN_SECRET);
+      const user_id=decode.id;
+        
+      const id = mongoose.Types.ObjectId(user_id);
+
+      let loc=true;
+      // console.log(latitude,longitude);
+      const user=await UserModel.findById(id);
+      if(!user)throw new Error("id incorrect");
+      // let{nearme}=user;
+      let near=[];
+      
+     
+        await geoCoder.geocode(addr)
+            .then((res)=> {
+              if(res.length==0)loc=false;
+              address=res[0];
+            //  currstate=(res[0].state);
+            //  currlongitude=(res[0].longitude);
+            //  currlatitude=(res[0].latitude);
+            })
+            .catch((err)=> {
+              console.log(err);
+            });
+            if(loc==false)
+            {
+              await geoCoder.geocode(pincode)
+            .then((res)=> {
+              loc=true;
+              if(res.length==0)loc=false;
+              address=res[0];
+            //  currstate=(res[0].state);
+            //  currlongitude=(res[0].longitude);
+            //  currlatitude=(res[0].l/atitude);
+             
+            })
+            .catch((err)=> {
+              console.log(err);
+            });
+            }
+          if(!loc)throw new Error("Location not found");
+      
+        const staterestaurants=await sellerModel.find({state:address.state});
+        
+         
+        //  console.log(restaurants);
+        // console.log(address);
+      const userlat=address.latitude;
+      // const restlat=restaurant.latitude;
+      const userlong=address.longitude;
+      // const restlong=restaurant.longitude;
+      const circle = {
+          center: [userlat, userlong], 
+          radius: 10000 // 10km
+      }
+      staterestaurants.forEach(restaurant=>{
+        restlat=restaurant.latitude;
+        restlong=restaurant.longitude;
+        const point = [restlat, restlong];
+        if( isInsideCircle(circle.center, point, circle.radius))
+        {
+          near.push(restaurant);
+        }
+      });
+      // console.log(near);
+      user.nearme=near;
+      user.save();
+      // const point = [restlat, restlong] // Alexandria... >5km away from Giza
+      // const inside = isInsideCircle(circle.center, point, circle.radius);
+      // const distance = distanceTo([userlat, userlong], [userlat, userlong]);
+      // console.log(inside,distance/1000);
+        res.status(200).json({
+          success: true,
+          msg: "location identified!",
+          address:address.formattedAddress
+  
+        });
+    }
+    catch (err){
+        return res.status(400).json({success:false,msg:err.message});
+    }
+  },
   restaurant:async(req,res)=>{
     try{
       
