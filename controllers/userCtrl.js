@@ -475,7 +475,7 @@ const userCtrl = {
           food_price=cartinfotemp.food_price;
           let quantity=cartinfotemp.quantity+1;
           cart.splice(j,1);
-          const newcart=[...cart,{foodname,food_price,quantity}];
+          // const newcart=[...cart,{foodname,food_price,quantity}];
           // const seller =await sellerModel.findByIdAndUpdate({_id:user.sellerid},{ $push: { orders: user.cart }});
           await UserModel.findByIdAndUpdate({_id:id},{cart:cart},{new: true});
           const result=await UserModel.findByIdAndUpdate({_id:id},{$push:{cart:{foodid:foodid,foodname,food_price,quantity}}},{new: true});  
@@ -590,7 +590,8 @@ const userCtrl = {
       const user_id=decode.id;
         
       let id = mongoose.Types.ObjectId(user_id);
-      const users=await UserModel.findById(id).populate("food_list");
+      const users=await UserModel.findById(id);
+      await sellerModel.populate(users, {path: "food_list"});
       const {cart}=users;
       // if(users.cart=[])throw new Error("cart empty");
         res.status(200).json({
