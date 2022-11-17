@@ -38,6 +38,9 @@ const userSchema = mongoose.Schema({
     default:""
   },
   cart:[{
+    foodid:{
+      type:mongoose.Schema.Types.ObjectId,
+    },
     foodname:{
         type:String,
         // unique:true,

@@ -62,34 +62,11 @@ const foodSchema=mongoose.Schema({
         type:Array,
     },
     food_list:[{
-        foodname:{
-            type:String,
-            
-            // unique:true,   
-        },
-        food_price:{
-
-            type:Number,
-            
-        },
-        food_desc:{
-            type:String,
-            
-        },
-        food_category:{
-            type:String,
-        },
-        food_rating:{
-            type:Number,
-            default:0
-        },
-        imgpath:{
-            type:String,
-            default:"uploads/1668230968407-Screenshot_20221023_043313.png"
-        }
+       type:mongoose.Schema.Types.ObjectId,
+       ref:"foodlist"
 
     }],
 });
-const foodModel=mongoose.model("SELLER",foodSchema);
+const foodModel=mongoose.model("sellers",foodSchema);
 
 module.exports=foodModel;
