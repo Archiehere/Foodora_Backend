@@ -656,7 +656,7 @@ const userCtrl = {
       
       let id = mongoose.Types.ObjectId(user_id);
 
-      const users=await UserModel.findById(id);
+      const users=await UserModel.findById(id).populate("food_list");
       const {sellerid}=users;
       let count;
       if(sellerid!=seller_id){
@@ -707,11 +707,14 @@ const userCtrl = {
       
     
         const nearby = await UserModel.findById(id);
+
         console.log(id);
         if(nearby.nearme.length==0)throw new Error("nothing nearby");
       if(!nearby)throw new Error("id incorrect");
       // console.log(near);
       near=nearby.nearme;
+      await sellerModel.populate(near, {path: "food_list"});
+      // await sellerModel.findById(id).populate("food_list");
       res.status(200).json({
         success: true,
         msg: "Feed sent successfully",
@@ -752,7 +755,7 @@ const userCtrl = {
         });
         // console.log(address);
         useraddress=address.formattedAddress;
-        const staterestaurants=await sellerModel.find({state:address.state});
+        const staterestaurants=await sellerModel.find({state:address.state}).populate("food_list");
         
          
         //  console.log(restaurants);
@@ -841,7 +844,7 @@ const userCtrl = {
           if(!loc)throw new Error("Location not found");
           useraddress=address.formattedAddress;
       
-        const staterestaurants=await sellerModel.find({state:address.state});
+        const staterestaurants=await sellerModel.find({state:address.state}).populate("food_list");
         
          
         //  console.log(restaurants);
@@ -911,7 +914,7 @@ const userCtrl = {
         const user_id=decode.id;
         let id = mongoose.Types.ObjectId(user_id);
         
-        const user = await UserModel.findById(id);
+        const user = await UserModel.findById(id).populate("food_list");
         
         if(!user)throw new Error("id incorrect");
         if(user.cart.length==0)throw new Error("Cart is Empty");
@@ -941,9 +944,11 @@ const userCtrl = {
         const {text} = req.body;
         const filter = {$regex: text ,'$options': 'i'};
         let docs = await sellerModel.aggregate([
-            { $match:{restaurantname: filter} }
-          ]).limit(5).populate("food_list");
-        
+            { $match:{restaurantname: filter} },
+            // { $lookup: {from: 'sellerModel', localField: 'food_list', foreignField: 'food_list', as: 'userModel'} }
+          ]).limit(5);
+          await sellerModel.populate(docs, {path: "food_list"});
+          // .populate("food_list")
         if(!docs) return res.status(400).json({msg:'Not able to search.'});
 
         const restaurants = [];
