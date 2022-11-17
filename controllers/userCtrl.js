@@ -608,6 +608,7 @@ const userCtrl = {
     try{
       const{food_id,seller_id}=req.body;
       const seller=await sellerModel.findById(seller_id);
+      // const food_list=await sellerModel.findById(id).populate("food_list");
       const{food_list}=seller;
       let tempfoodinfo=null;
       food_list.forEach(foodinfo=>{
@@ -885,14 +886,15 @@ const userCtrl = {
     try{
       
         const id=req.params.id;
-        const seller = await sellerModel.findById(id);
-        const foods=await sellerModel.findById(id).populate("food_list");
+        // const seller = await sellerModel.findById(id); 
+        const seller=await sellerModel.findById(id).populate("food_list");
       if(!seller)throw new Error("id incorrect");
       
       res.status(200).json({
         success: true,
         msg: "Seller sent successfully",
-        foods,
+        seller,
+        // foods,
       })
 
     }
