@@ -475,18 +475,18 @@ const userCtrl = {
           food_price=cartinfotemp.food_price;
           let quantity=cartinfotemp.quantity+1;
           cart.splice(j,1);
-          // const newcart=[...cart,{foodname,food_price,quantity}];
-          // const seller =await sellerModel.findByIdAndUpdate({_id:user.sellerid},{ $push: { orders: user.cart }});
-          await UserModel.findByIdAndUpdate({_id:id},{cart:cart},{new: true});
-          const result=await UserModel.findByIdAndUpdate({_id:id},{$push:{cart:{foodid:foodid,foodname,food_price,quantity}}},{new: true});  
-          // const result1=await UserModel.findByIdAndUpdate({_id:id},{cart:newcart},{new: true});
+          const newcart=[...cart,{foodname,food_price,quantity}];
+         
+          // await UserModel.findByIdAndUpdate({_id:id},{cart:cart},{new: true});
+          // const result=await UserModel.findByIdAndUpdate({_id:id},{$push:{cart:{foodid:foodid,foodname,food_price,quantity}}},{new: true});  
+          const result1=await UserModel.findByIdAndUpdate({_id:id},{cart:newcart},{new: true});
           const result2=await UserModel.findByIdAndUpdate({_id:id},{sellerid:sellerid},{new: true}); 
         }
         else{
           var quantity=1;
-          // const newcart=[...cart,{foodname,food_price,quantity}];
-          // const result1=await UserModel.findByIdAndUpdate({_id:id},{cart:newcart},{new: true});
-          const result=await UserModel.findByIdAndUpdate({_id:id},{$push:{cart:{foodid,foodname,food_price,quantity}}},{new: true});
+          const newcart=[...cart,{foodname,food_price,quantity}];
+          const result1=await UserModel.findByIdAndUpdate({_id:id},{cart:newcart},{new: true});
+          // const result=await UserModel.findByIdAndUpdate({_id:id},{$push:{cart:{foodid,foodname,food_price,quantity}}},{new: true});
           const result2=await UserModel.findByIdAndUpdate({_id:id},{sellerid:sellerid},{new: true});  
         }
         
@@ -657,7 +657,8 @@ const userCtrl = {
       
       let id = mongoose.Types.ObjectId(user_id);
 
-      const users=await UserModel.findById(id).populate("food_list");
+      const users=await UserModel.findById(id);
+      await sellerModel.populate(users, {path: "food_list"});
       const {sellerid}=users;
       let count;
       if(sellerid!=seller_id){
@@ -915,8 +916,8 @@ const userCtrl = {
         const user_id=decode.id;
         let id = mongoose.Types.ObjectId(user_id);
         
-        const user = await UserModel.findById(id).populate("food_list");
-        
+        const user = await UserModel.findById(id);
+        await sellerModel.populate(user, {path: "food_list"});
         if(!user)throw new Error("id incorrect");
         if(user.cart.length==0)throw new Error("Cart is Empty");
         // console.log(user.sellerid);
