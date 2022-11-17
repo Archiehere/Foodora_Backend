@@ -1,4 +1,5 @@
 const sellerModel=require("../models/foodModel");
+const foodlistModel=require("../models/foodlistmodel")
 const otpModel = require("../models/otpModel2");
 const bcrypt = require("bcrypt");
 const nodemailer = require("nodemailer");
@@ -464,39 +465,76 @@ const foodCtrl={
              
             if(!id)throw new Error("login or register !");
             const restaurant=await sellerModel.findById(id);
+            
             if(!restaurant)throw new Error("no such restaurant found !");
             // console.log(restaurant.restaurantname);
             if(!restaurant.restaurantname)throw new Error("restaurant not registered"); 
-            const {food_list}=restaurant; //check if empty food_list array is obtained or not on first food item entry
+            const present=await foodlistModel.find({});
             let i=0;
-            let j=0;
-            let pointer=0;
-            food_list.forEach(foodlist=>{
-              if(foodname==foodlist.foodname)
+            present.forEach(presentfood=>{
+              if(presentfood.foodname==foodname)
               {
                 i=1;
-                pointer=j;
               }
-              j++;
             })
-            
-            if(i==0){
-            const newfoodlist=[...food_list,{foodname,food_price,food_desc,food_category,imgpath : filepath}];
-            const result=await sellerModel.findByIdAndUpdate({_id:id},{food_list:newfoodlist},{new: true});
-            console.log(result);
-            }
-            else{
-              console.log(pointer);
-              food_list.splice(pointer,1);
-              const newfoodlist=[...food_list,{foodname,food_price,food_desc,food_category,imgpath : filepath}];
-              const result=await sellerModel.findByIdAndUpdate({_id:id},{food_list:newfoodlist},{new: true});
 
-            }
-            
+            if(i==0){
+            const foodlist = await foodlistModel.create({
+              sellerid:id,
+              foodname,
+              food_price,
+              food_desc,
+              food_category,
+              imgpath:filepath
+          });
+
+          const appendfoodlist = await sellerModel.findByIdAndUpdate(id,{
+            $addToSet:{food_list:foodlist._id}
+           });
+
             res.status(200).json({
-                success:true,
-                msg:"Dish entered successfully !",
+            success:true,
+            msg:"Dish entered successfully !",
             });
+          }
+         else{
+          res.status(400).json({
+            success:false,
+            msg:"Dish already  present!",
+          })
+         }
+            // const {food_list}=restaurant; //check if empty food_list array is obtained or not on first food item entry
+            
+            // let i=0;
+            // let j=0;
+            // let pointer=0;
+            // food_list.forEach (async foodlist=>{
+            //   let foodlistval=await foodlistModel.findById({foodlist})
+            //   if(foodname==foodlistval.foodname)
+            //   {
+            //     i=1;
+            //     pointer=j;
+            //   }
+            //   j++;
+            // })
+            
+            // if(i==0){
+            // const newfoodlist=[...food_list,{foodname,food_price,food_desc,food_category,imgpath : filepath}];
+            // const result=await sellerModel.findByIdAndUpdate({_id:id},{food_list:newfoodlist},{new: true});
+            // console.log(result);
+            // }
+            // else{
+            //   console.log(pointer);
+            //   food_list.splice(pointer,1);
+            //   const newfoodlist=[...food_list,{foodname,food_price,food_desc,food_category,imgpath : filepath}];
+            //   const result=await sellerModel.findByIdAndUpdate({_id:id},{food_list:newfoodlist},{new: true});
+
+            // }
+            
+            // res.status(200).json({
+            //     success:true,
+            //     msg:"Dish entered successfully !",
+            // });
 
 
         }
@@ -515,13 +553,12 @@ const foodCtrl={
           const id = mongoose.Types.ObjectId(_id);
           console.log(id);
           if(!id)throw new Error("No user exists !")
-          const sellerDetails=await sellerModel.findById(id);
+          const sellerDetails=await sellerModel.findById(id).populate('food_list');
           // const sellername=sellerDetails.sellername
           // const emailid=sellerDetails.email
           // const restaurantname=sellerDetails.restaurantname
           // const restaurantaddress=sellerDetails.restaurantaddress
           // const restaurantdesc=sellerDetails.restaurantdesc
-            
           res.status(200).json({
             success: true,
             msg: "seller details sent successfully !",

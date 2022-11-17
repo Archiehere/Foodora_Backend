@@ -1,4 +1,5 @@
 const UserModel = require("../models/userModel");
+const foodlistModel=require("../models/foodlistmodel");
 const { distanceTo, isInsideCircle } = require('geofencer');
 const otpModel = require("../models/otpModel");
 const bcrypt = require("bcrypt");
@@ -316,8 +317,10 @@ const userCtrl = {
     try {
       // console.log(req.route.path);
       const { email, otp } = req.body;
-      const user = await UserModel.findOne({ email });
+      const user = await UserModel.findOne({email});
       const userotp = await otpModel.findOne({ email });
+      console.log(user);
+      console.log(userotp);
       if (!userotp) throw new Error("OTP timed out.");
       if (!user) throw new Error("No user found!");
       if (user.verify) throw new Error("User already verified");
@@ -432,7 +435,7 @@ const userCtrl = {
         
       let id = mongoose.Types.ObjectId(user_id);
 
-      const fooddetails=await sellerModel.findById(seller_id);
+      const fooddetails=await sellerModel.findById(seller_id).populate("food_list");
       const{food_list}=fooddetails;
       let cartfoodlist;
       console.log(food_id);
@@ -444,6 +447,7 @@ const userCtrl = {
         }
       })  
       console.log(cartfoodlist);
+      var foodid = mongoose.Types.ObjectId(food_id);
       var foodname=cartfoodlist.foodname;
       var food_price=cartfoodlist.food_price;
       const user=await UserModel.findById(id);
@@ -473,22 +477,24 @@ const userCtrl = {
         })
         if(cartinfotemp!=null)
         {
+          console.log(foodid);
+          console.log("hey there");
           foodname=cartinfotemp.foodname;
           food_price=cartinfotemp.food_price;
           let quantity=cartinfotemp.quantity+1;
           cart.splice(j,1);
           const newcart=[...cart,{foodname,food_price,quantity}];
           // const seller =await sellerModel.findByIdAndUpdate({_id:user.sellerid},{ $push: { orders: user.cart }});
-          // await UserModel.findByIdAndUpdate({_id:id},{cart:cart},{new: true});
-          // const result=await UserModel.findByIdAndUpdate({_id:id},{$push:{cart:{foodname,food_price,quantity}}},{new: true});  
-          const result1=await UserModel.findByIdAndUpdate({_id:id},{cart:newcart},{new: true});
+          await UserModel.findByIdAndUpdate({_id:id},{cart:cart},{new: true});
+          const result=await UserModel.findByIdAndUpdate({_id:id},{$push:{cart:{foodid:foodid,foodname,food_price,quantity}}},{new: true});  
+          // const result1=await UserModel.findByIdAndUpdate({_id:id},{cart:newcart},{new: true});
           const result2=await UserModel.findByIdAndUpdate({_id:id},{sellerid:sellerid},{new: true}); 
         }
         else{
           var quantity=1;
-          const newcart=[...cart,{foodname,food_price,quantity}];
-          const result1=await UserModel.findByIdAndUpdate({_id:id},{cart:newcart},{new: true});
-          // const result=await UserModel.findByIdAndUpdate({_id:id},{$push:{cart:{foodname,food_price,quantity}}},{new: true});
+          // const newcart=[...cart,{foodname,food_price,quantity}];
+          // const result1=await UserModel.findByIdAndUpdate({_id:id},{cart:newcart},{new: true});
+          const result=await UserModel.findByIdAndUpdate({_id:id},{$push:{cart:{foodid,foodname,food_price,quantity}}},{new: true});
           const result2=await UserModel.findByIdAndUpdate({_id:id},{sellerid:sellerid},{new: true});  
         }
         
@@ -497,7 +503,7 @@ const userCtrl = {
       {
         quantity=1;
         sellerid=seller_id;
-        const newcart=[{foodname,food_price,quantity}];
+        const newcart=[{foodid,foodname,food_price,quantity}];
         const result=await UserModel.findByIdAndUpdate({_id:id},{cart:newcart},{new: true});  
         const result2=await UserModel.findByIdAndUpdate({_id:id},{sellerid:sellerid},{new: true}); 
       }
@@ -984,6 +990,30 @@ const userCtrl = {
       return res.status(400).json(err);
     }
   },
+  category:async(req,res)=>{
+    try{
+      let {category}=req.body;
+      const pipeline=[
+          {
+            '$match': {
+              'food_category': category
+            }
+          }
+      ]
+      const resultcategory=await foodlistModel.aggregate(pipeline);
+
+       return res.status(200).json({
+        msg:"food category sent !",
+        resultcategory
+      });
+      
+      
+    }
+    catch(err){
+      console.log(err);
+      return res.status(400).json(err);
+    }
+  }
   
   
   
