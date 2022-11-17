@@ -436,30 +436,24 @@ const userCtrl = {
       const fooddetails=await sellerModel.findById(seller_id).populate("food_list");
       const{food_list}=fooddetails;
       let cartfoodlist;
-      console.log(food_id);
       food_list.forEach(foodlist=>{
-        console.log(foodlist._id);
         if(foodlist._id==food_id)
         {
           cartfoodlist=foodlist;
         }
       })  
-      console.log(cartfoodlist);
       var foodid = mongoose.Types.ObjectId(food_id);
       var foodname=cartfoodlist.foodname;
       var food_price=cartfoodlist.food_price;
       const user=await UserModel.findById(id);
       let {sellerid}=user;
-      console.log(sellerid);
       if(seller_id==sellerid || sellerid=="")
       {
         if(sellerid=="")
         {
           sellerid=seller_id;
         }
-        console.log(sellerid);
         const {cart}=user;
-        console.log(cart);
         let cartinfotemp=null;
         let i=0;
         let j;
@@ -475,8 +469,6 @@ const userCtrl = {
         })
         if(cartinfotemp!=null)
         {
-          console.log(foodid);
-          console.log("hey there");
           foodname=cartinfotemp.foodname;
           food_price=cartinfotemp.food_price;
           let quantity=cartinfotemp.quantity+1;
@@ -527,8 +519,7 @@ const userCtrl = {
         
       const id = mongoose.Types.ObjectId(user_id);
 
-      const fooddetails=await sellerModel.findById(seller_id);
-      console.log(fooddetails);
+      const fooddetails=await sellerModel.findById(seller_id).populate('food_list');
       const{food_list}=fooddetails;
       let cartfoodlist;
       food_list.forEach(foodlist=>{
@@ -537,7 +528,6 @@ const userCtrl = {
           cartfoodlist=foodlist;
         }
       })
-      console.log(cartfoodlist);
       
       var foodname=cartfoodlist.foodname;
       var food_price=cartfoodlist.food_price;
@@ -555,7 +545,6 @@ const userCtrl = {
         i++;
         
       })
-      console.log(i);
       if(cartinfotemp!=null)
       {
         foodname=cartinfotemp.foodname;
@@ -566,9 +555,9 @@ const userCtrl = {
           
         cart.splice(j,1);
         if(quantity>0){
-        // const newcart=[...cart,{foodname,food_price,quantity}];
-        // const result=await UserModel.findByIdAndUpdate({_id:id},{cart:newcart},{new: true});
-        const result=await UserModel.findByIdAndUpdate({_id:id},{$push:{cart:{foodname,food_price,quantity}}},{new: true});
+        const newcart=[...cart,{foodname,food_price,quantity}];
+        const result=await UserModel.findByIdAndUpdate({_id:id},{cart:newcart},{new: true});
+        // const result=await UserModel.findByIdAndUpdate({_id:id},{$push:{cart:{foodname,food_price,quantity}}},{new: true});
         }
         else{
           const result=await UserModel.findByIdAndUpdate({_id:id},{cart:cart},{new: true});
@@ -599,7 +588,7 @@ const userCtrl = {
       const user_id=decode.id;
         
       let id = mongoose.Types.ObjectId(user_id);
-      const users=await UserModel.findById(id);
+      const users=await UserModel.findById(id).populate("food_list");
       const {cart}=users;
       // if(users.cart=[])throw new Error("cart empty");
         res.status(200).json({
