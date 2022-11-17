@@ -886,13 +886,13 @@ const userCtrl = {
       
         const id=req.params.id;
         const seller = await sellerModel.findById(id);
-        
+        const foods=await sellerModel.findById(id).populate("food_list");
       if(!seller)throw new Error("id incorrect");
       
       res.status(200).json({
         success: true,
         msg: "Seller sent successfully",
-        seller,
+        foods,
       })
 
     }
