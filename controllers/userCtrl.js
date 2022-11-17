@@ -607,7 +607,7 @@ const userCtrl = {
   fooddetails:async(req,res)=>{
     try{
       const{food_id,seller_id}=req.body;
-      const seller=await sellerModel.findById(seller_id);
+      const seller=await sellerModel.findById(seller_id).populate("food_list");
       // const food_list=await sellerModel.findById(id).populate("food_list");
       const{food_list}=seller;
       let tempfoodinfo=null;
@@ -916,7 +916,8 @@ const userCtrl = {
         if(!user)throw new Error("id incorrect");
         if(user.cart.length==0)throw new Error("Cart is Empty");
         // console.log(user.sellerid);
-        const seller =await sellerModel.findByIdAndUpdate({_id:user.sellerid},{ $push: { orders: user.cart }});
+        const seller =await sellerModel.findByIdAndUpdate({_id:user.sellerid},{ $push: { orders: user.cart }}).populate("food_list");
+        // const seller=await sellerModel.findById(id).populate("food_list");
         // seller.save(); 
         user.orderhistory.push(user.cart);
         user.cart=[];
@@ -941,7 +942,7 @@ const userCtrl = {
         const filter = {$regex: text ,'$options': 'i'};
         let docs = await sellerModel.aggregate([
             { $match:{restaurantname: filter} }
-          ]).limit(5);
+          ]).limit(5).populate("food_list");
         
         if(!docs) return res.status(400).json({msg:'Not able to search.'});
 
