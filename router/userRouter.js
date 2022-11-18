@@ -28,6 +28,7 @@ router.post("/location",auth,userCtrl.location);
 router.post("/locationbyaddress",auth,userCtrl.locationbyaddress);
 router.get("/feed",auth,userCtrl.feed);
 router.get("/restaurant/:id",auth,userCtrl.restaurant);
+router.get("/order/:id",auth,userCtrl.order);
 router.post("/checkout",auth,userCtrl.checkout);
 router.post("/search",auth,userCtrl.search);
 router.post("/fooddetails",auth,userCtrl.fooddetails);
