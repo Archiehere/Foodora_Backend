@@ -1035,7 +1035,7 @@ const userCtrl = {
       // const {orderid,status}=req.body;
       // let id = mongoose.Types.ObjectId(orderid);
       // console.log(id);
-      const orders = await orderModel.find({userid:id});
+      const orders = await orderModel.find({userid:id}).sort({_id:-1});
       // console.log(order);
       if(!orders)throw new Error("no orders");
       // status.toLowerCase();
@@ -1056,7 +1056,7 @@ const userCtrl = {
       const user_id=decode.id;
         
       const id = mongoose.Types.ObjectId(user_id);
-      const user=await UserModel.findById(id);
+      const user=await orderModel.find({userid:id});
 
       if(!user)throw new Error("id incorrect");
       // let {cart}=user;
@@ -1079,34 +1079,34 @@ const userCtrl = {
 
       // const result=await UserModel.findByIdAndUpdate({_id:id},{cart:cart},{new: true});
 
-      let {orderhistory}=user;
-      console.log(orderhistory);
-      let i=0;
-      let j=0;
-      let carteletemp;
-      orderhistory.forEach(cartele=>{
-        i++;
-        if(cartele.foodid==food_id)
-        {
-          carteletemp=cartele;
-          j=i;
-        }
+      let {order}=user;
+      console.log(user);
+      // let i=0;
+      // let j=0;
+      // let carteletemp;
+      // orderhistory.forEach(cartele=>{
+      //   i++;
+      //   if(cartele.foodid==food_id)
+      //   {
+      //     carteletemp=cartele;
+      //     j=i;
+      //   }
   
-      })
-      console.log(carteletemp);
-      if(carteletemp.rating!=0)throw new Error("User already rated the item !");
-      carteletemp.rating=rating;
+      // })
+      // console.log(carteletemp);
+      // if(carteletemp.rating!=0)throw new Error("User already rated the item !");
+      // carteletemp.rating=rating;
       
-      orderhistory.splice(j-1,1,carteletemp);
-      console.log(orderhistory);
+      // orderhistory.splice(j-1,1,carteletemp);
+      // console.log(orderhistory);
 
-      const result=await UserModel.findByIdAndUpdate({_id:id},{orderhistory:orderhistory},{new: true});
-      const ratingele=await foodlistModel.findById(food_id);
-      console.log(ratingele);
-      ratingele.ratingtotal=+ratingele.ratingtotal+ +rating;
-      ratingele.ratingcount=ratingele.ratingcount+1;
-      ratingele.food_rating=ratingele.ratingtotal/ratingele.ratingcount;
-      ratingele.save();
+      // const result=await UserModel.findByIdAndUpdate({_id:id},{orderhistory:orderhistory},{new: true});
+      // const ratingele=await foodlistModel.findById(food_id);
+      // console.log(ratingele);
+      // ratingele.ratingtotal=+ratingele.ratingtotal+ +rating;
+      // ratingele.ratingcount=ratingele.ratingcount+1;
+      // ratingele.food_rating=ratingele.ratingtotal/ratingele.ratingcount;
+      // ratingele.save();
 
       return res.status(200).json({
       msg:"rating added !",
