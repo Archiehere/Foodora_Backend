@@ -26,6 +26,14 @@ const foodlistSchema=mongoose.Schema({
         type:Number,
         default:0
     },
+    ratingtotal:{
+        type:Number,
+        default:0
+    },
+    ratingcount:{
+        type:Number,
+        default:0
+    },
     imgpath:{
         type:String,
         default:"uploads/1668230968407-Screenshot_20221023_043313.png"

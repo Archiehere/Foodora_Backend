@@ -406,6 +406,7 @@ const userCtrl = {
       const username=userDetails.username
       const emailid=userDetails.email
       const orderhistory=userDetails.orderhistory
+      const useraddress=userDetails.address;
       // console.log(userDetails);
       res.status(200).json({
         success: true,
@@ -414,6 +415,7 @@ const userCtrl = {
         emailid,
         imagepath:userDetails.profileimgpath,
         orderhistory,
+        useraddress,
       })
 
 
@@ -605,7 +607,8 @@ const userCtrl = {
   fooddetails:async(req,res)=>{
     try{
       const{food_id,seller_id}=req.body;
-      const seller=await sellerModel.findById(seller_id);
+      const seller=await sellerModel.findById(seller_id).populate("food_list");
+      // const food_list=await sellerModel.findById(id).populate("food_list");
       const{food_list}=seller;
       let tempfoodinfo=null;
       food_list.forEach(foodinfo=>{
@@ -747,7 +750,8 @@ const userCtrl = {
         .catch((err)=> {
           console.log(err);
         });
-      
+        // console.log(address);
+        useraddress=address.formattedAddress;
         const staterestaurants=await sellerModel.find({state:address.state});
         
          
@@ -771,7 +775,97 @@ const userCtrl = {
         }
       });
       // console.log(near);
+      user.address=useraddress;
       user.nearme=near;
+      user.save();
+      // const point = [restlat, restlong] // Alexandria... >5km away from Giza
+      // const inside = isInsideCircle(circle.center, point, circle.radius);
+      // const distance = distanceTo([userlat, userlong], [userlat, userlong]);
+      // console.log(inside,distance/1000);
+        res.status(200).json({
+          success: true,
+          msg: "location identified!",
+          address:address.formattedAddress
+  
+        });
+    }
+    catch (err){
+        return res.status(400).json({success:false,msg:err.message});
+    }
+  },
+  locationbyaddress:async(req,res)=>{
+    try{
+      const{addr,pincode}=req.body;
+      let token=req.headers['accesstoken'] || req.headers['authorization'];
+      token = token.replace(/^Bearer\s+/, "");
+      const decode = await jwt.verify(token,process.env.ACCESS_TOKEN_SECRET);
+      const user_id=decode.id;
+        
+      const id = mongoose.Types.ObjectId(user_id);
+
+      let loc=true;
+      // console.log(latitude,longitude);
+      const user=await UserModel.findById(id);
+      if(!user)throw new Error("id incorrect");
+      // let{nearme}=user;
+      let near=[];
+      
+     
+        await geoCoder.geocode(addr)
+            .then((res)=> {
+              if(res.length==0)loc=false;
+              address=res[0];
+            //  currstate=(res[0].state);
+            //  currlongitude=(res[0].longitude);
+            //  currlatitude=(res[0].latitude);
+            })
+            .catch((err)=> {
+              console.log(err);
+            });
+            if(loc==false)
+            {
+              await geoCoder.geocode(pincode)
+            .then((res)=> {
+              loc=true;
+              if(res.length==0)loc=false;
+              address=res[0];
+            //  currstate=(res[0].state);
+            //  currlongitude=(res[0].longitude);
+            //  currlatitude=(res[0].l/atitude);
+             
+            })
+            .catch((err)=> {
+              console.log(err);
+            });
+            }
+          if(!loc)throw new Error("Location not found");
+          useraddress=address.formattedAddress;
+      
+        const staterestaurants=await sellerModel.find({state:address.state});
+        
+         
+        //  console.log(restaurants);
+        // console.log(address);
+      const userlat=address.latitude;
+      // const restlat=restaurant.latitude;
+      const userlong=address.longitude;
+      // const restlong=restaurant.longitude;
+      const circle = {
+          center: [userlat, userlong], 
+          radius: 10000 // 10km
+      }
+      staterestaurants.forEach(restaurant=>{
+        restlat=restaurant.latitude;
+        restlong=restaurant.longitude;
+        const point = [restlat, restlong];
+        if( isInsideCircle(circle.center, point, circle.radius))
+        {
+          near.push(restaurant);
+        }
+      });
+      // console.log(near);
+      user.nearme=near;
+      user.address=useraddress;
       user.save();
       // const point = [restlat, restlong] // Alexandria... >5km away from Giza
       // const inside = isInsideCircle(circle.center, point, circle.radius);
@@ -792,14 +886,15 @@ const userCtrl = {
     try{
       
         const id=req.params.id;
-        const seller = await sellerModel.findById(id);
-        
+        // const seller = await sellerModel.findById(id); 
+        const seller=await sellerModel.findById(id).populate("food_list");
       if(!seller)throw new Error("id incorrect");
       
       res.status(200).json({
         success: true,
         msg: "Seller sent successfully",
         seller,
+        // foods,
       })
 
     }
@@ -821,7 +916,8 @@ const userCtrl = {
         if(!user)throw new Error("id incorrect");
         if(user.cart.length==0)throw new Error("Cart is Empty");
         // console.log(user.sellerid);
-        const seller =await sellerModel.findByIdAndUpdate({_id:user.sellerid},{ $push: { orders: user.cart }});
+        const seller =await sellerModel.findByIdAndUpdate({_id:user.sellerid},{ $push: { orders: user.cart }}).populate("food_list");
+        // const seller=await sellerModel.findById(id).populate("food_list");
         // seller.save(); 
         user.orderhistory.push(user.cart);
         user.cart=[];
@@ -846,7 +942,7 @@ const userCtrl = {
         const filter = {$regex: text ,'$options': 'i'};
         let docs = await sellerModel.aggregate([
             { $match:{restaurantname: filter} }
-          ]).limit(5);
+          ]).limit(5).populate("food_list");
         
         if(!docs) return res.status(400).json({msg:'Not able to search.'});
 
@@ -908,6 +1004,83 @@ const userCtrl = {
     catch(err){
       console.log(err);
       return res.status(400).json(err);
+    }
+  },
+  rating:async(req,res)=>{
+    try{
+      const{rating,food_id}=req.body;
+      let token=req.headers['accesstoken'] || req.headers['authorization'];
+      token = token.replace(/^Bearer\s+/, "");
+      const decode = await jwt.verify(token,process.env.ACCESS_TOKEN_SECRET);
+      const user_id=decode.id;
+        
+      const id = mongoose.Types.ObjectId(user_id);
+      const user=await UserModel.findById(id);
+
+      if(!user)throw new Error("id incorrect");
+      // let {cart}=user;
+      // console.log(cart);
+      // let i=0;
+      // let j=0;
+      // cart.forEach(cartele=>{
+      //   i++;
+      //   if(cartele.foodid==food_id)
+      //   {
+      //     carteletemp=cartele;
+      //     j=i;
+      //   }
+      // })
+      // if(carteletemp.rating!=0)throw new Error("User already rated the item !");
+      // carteletemp.rating=rating;
+      
+      // cart.splice(j-1,1,carteletemp);
+      // console.log(cart);
+
+      // const result=await UserModel.findByIdAndUpdate({_id:id},{cart:cart},{new: true});
+
+      let {orderhistory}=user;
+      console.log(orderhistory);
+      let i=0;
+      let j=0;
+      let carteletemp;
+      orderhistory.forEach(cartele=>{
+        i++;
+        if(cartele.foodid==food_id)
+        {
+          carteletemp=cartele;
+          j=i;
+        }
+      })
+      console.log(carteletemp);
+      if(carteletemp.rating!=0)throw new Error("User already rated the item !");
+      carteletemp.rating=rating;
+      
+      orderhistory.splice(j-1,1,carteletemp);
+      console.log(orderhistory);
+
+      const result=await UserModel.findByIdAndUpdate({_id:id},{orderhistory:orderhistory},{new: true});
+
+      
+      
+
+
+
+
+      const ratingele=await foodlistModel.findById(food_id);
+      console.log(ratingele);
+      ratingele.ratingtotal=+ratingele.ratingtotal+ +rating;
+      ratingele.ratingcount=ratingele.ratingcount+1;
+      ratingele.food_rating=ratingele.ratingtotal/ratingele.ratingcount;
+      ratingele.save();
+
+      return res.status(200).json({
+      msg:"rating added !",
+      })
+
+    }
+    catch(err){
+      console.log(err);
+      return res.status(400).json({success:false,msg:err.message});
     }
   }
   

@@ -31,5 +31,6 @@ router.post("/checkout",auth,userCtrl.checkout);
 router.post("/search",auth,userCtrl.search);
 router.post("/fooddetails",auth,userCtrl.fooddetails);
 router.post("/category",auth,userCtrl.category);
+router.post("/rating",auth,userCtrl.rating);
 
 module.exports = router;

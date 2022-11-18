@@ -447,7 +447,8 @@ const foodCtrl={
 
             // })
 
-            const{foodname,food_price,food_desc,food_category}=req.body;
+            let{foodname,food_price,food_desc,food_category}=req.body;
+            food_category=food_category.toLowerCase();
 
             let token=req.headers['accesstoken'] || req.headers['authorization'];
             token = token.replace(/^Bearer\s+/, "");
@@ -472,11 +473,12 @@ const foodCtrl={
             const present=await foodlistModel.find({});
             let i=0;
             present.forEach(presentfood=>{
-              if(presentfood.foodname==foodname)
+              if(presentfood.foodname==foodname && presentfood.sellerid==id)
               {
-                i=1;
+                 i=1;
               }
             })
+            
 
             if(i==0){
             const foodlist = await foodlistModel.create({
