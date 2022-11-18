@@ -634,8 +634,8 @@ const foodCtrl={
           // const {orderid,status}=req.body;
           // let id = mongoose.Types.ObjectId(orderid);
           // console.log(id);
-          const orders = await orderModel.find({sellerid:id});
-          // const orders = await orderModel.find({sellerid:id, status:"Pending"});
+          // const orders = await orderModel.find({sellerid:id});
+          const orders = await orderModel.find({sellerid:id, status:"Pending"});
           // console.log(order);
           if(!orders)throw new Error("no orders");
           // status.toLowerCase();
