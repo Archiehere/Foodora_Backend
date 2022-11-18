@@ -58,6 +58,10 @@ const userSchema = mongoose.Schema({
       type:Number,
       default:null
     },
+    rating:{
+      type:Number,
+      default:0
+    }
    
 }],
   

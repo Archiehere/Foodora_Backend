@@ -957,7 +957,7 @@ const userCtrl = {
         let docs = await sellerModel.aggregate([
             { $match:{restaurantname: filter} },
             // { $lookup: {from: 'sellerModel', localField: 'food_list', foreignField: 'food_list', as: 'userModel'} }
-          ]).limit(5);
+          ])
           await sellerModel.populate(docs, {path: "food_list"});
           // .populate("food_list")
         if(!docs) return res.status(400).json({msg:'Not able to search.'});
@@ -1047,9 +1047,80 @@ const userCtrl = {
       return res.status(400).json(err);
     }
   },
+  rating:async(req,res)=>{
+    try{
+      const{rating,food_id}=req.body;
+      let token=req.headers['accesstoken'] || req.headers['authorization'];
+      token = token.replace(/^Bearer\s+/, "");
+      const decode = await jwt.verify(token,process.env.ACCESS_TOKEN_SECRET);
+      const user_id=decode.id;
+        
+      const id = mongoose.Types.ObjectId(user_id);
+      const user=await UserModel.findById(id);
+
+      if(!user)throw new Error("id incorrect");
+      // let {cart}=user;
+      // console.log(cart);
+      // let i=0;
+      // let j=0;
+      // cart.forEach(cartele=>{
+      //   i++;
+      //   if(cartele.foodid==food_id)
+      //   {
+      //     carteletemp=cartele;
+      //     j=i;
+      //   }
+      // })
+      // if(carteletemp.rating!=0)throw new Error("User already rated the item !");
+      // carteletemp.rating=rating;
+      
+      // cart.splice(j-1,1,carteletemp);
+      // console.log(cart);
+
+      // const result=await UserModel.findByIdAndUpdate({_id:id},{cart:cart},{new: true});
+
+      let {orderhistory}=user;
+      console.log(orderhistory);
+      let i=0;
+      let j=0;
+      let carteletemp;
+      orderhistory.forEach(cartele=>{
+        i++;
+        if(cartele.foodid==food_id)
+        {
+          carteletemp=cartele;
+          j=i;
+        }
+  
+      })
+      console.log(carteletemp);
+      if(carteletemp.rating!=0)throw new Error("User already rated the item !");
+      carteletemp.rating=rating;
+      
+      orderhistory.splice(j-1,1,carteletemp);
+      console.log(orderhistory);
+
+      const result=await UserModel.findByIdAndUpdate({_id:id},{orderhistory:orderhistory},{new: true});
+      const ratingele=await foodlistModel.findById(food_id);
+      console.log(ratingele);
+      ratingele.ratingtotal=+ratingele.ratingtotal+ +rating;
+      ratingele.ratingcount=ratingele.ratingcount+1;
+      ratingele.food_rating=ratingele.ratingtotal/ratingele.ratingcount;
+      ratingele.save();
+
+      return res.status(200).json({
+      msg:"rating added !",
+      })
+
+    }
+    catch(err){
+      console.log(err);
+      return res.status(400).json({success:false,msg:err.message});
+    }
+  }
   
   
-  
+
 }
 
 
