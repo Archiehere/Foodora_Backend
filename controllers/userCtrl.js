@@ -1058,7 +1058,7 @@ const userCtrl = {
       res.status(200).json({
         success: true,
         msg: "Order sent successfully",
-        order,
+        order:order.order,
         // foods,
       })
 
