@@ -58,9 +58,9 @@ const foodSchema=mongoose.Schema({
         type:Boolean,
         required:false,
       },
-    orders:{
-        type:Array,
-    },
+    // orders:{
+    //     type:Array,
+    // },
     food_list:[{
        type:mongoose.Schema.Types.ObjectId,
        ref:"foodlist"

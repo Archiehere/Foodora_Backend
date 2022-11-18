@@ -14,7 +14,9 @@ router.post('/forgot/send',foodCtrl.forgotsendOTP);
 router.post('/forgot/verify',foodCtrl.forgotverify);
 router.post('/forgot/reset',foodCtrl.resetpass);
 router.post('/sellerprofile',auth,foodCtrl.sellerprofile);
-router.post('/removefromorders',auth,foodCtrl.removefromorders);
+router.post("/setorderstatus",auth,foodCtrl.setorderstatus);
+// router.post('/removefromorders',auth,foodCtrl.removefromorders);
+router.get("/sellerpendingorders",auth,foodCtrl.sellerpendingorders);
 module.exports=router;
 
 

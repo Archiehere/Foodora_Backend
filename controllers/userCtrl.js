@@ -14,6 +14,7 @@ const geoCoder = nodeGeocoder(options);
 const e = require("express");
 const otpGenerator = require("otp-generator");
 const sellerModel = require("../models/foodModel");
+const orderModel = require("../models/ordermodel");
 // const locator=require("../util/locator.js");
 require("dotenv").config();
 const transporter = nodemailer.createTransport({
@@ -34,7 +35,7 @@ const userCtrl = {
         const passwordHash = await bcrypt.hash(password, 12);
         const user = UserModel({
           username,
-          email,
+          email,   
           password: passwordHash,
           verify: false,
         });
@@ -921,18 +922,26 @@ const userCtrl = {
         if(!user)throw new Error("id incorrect");
         if(user.cart.length==0)throw new Error("Cart is Empty");
         // console.log(user.sellerid);
-        const seller =await sellerModel.findByIdAndUpdate({_id:user.sellerid},{ $push: { orders: user.cart }}).populate("food_list");
+        const order=orderModel({
+          order:user.cart,
+          sellerid:user.sellerid,
+          userid:user._id
+        });
+        await order.save();
+        // usercartobject={cart:user.cart , id:new mongoose.Types.ObjectId};
+        // const seller =await sellerModel.findByIdAndUpdate({_id:user.sellerid},{ $push: { orders: usercartobject }}).populate("food_list");
         // const seller=await sellerModel.findById(id).populate("food_list");
         // seller.save(); 
-        user.orderhistory.push(user.cart);
+        
+        // user.orderhistory.push(usercartobject);
         user.cart=[];
-        user.save();
+        await user.save();
     
         res.status(200).json({
           success: true,
           msg: "checkout successful",
           // user,
-          seller,
+          order,
           
         });
     }
@@ -1012,7 +1021,32 @@ const userCtrl = {
       console.log(err);
       return res.status(400).json(err);
     }
-  }
+  },
+  
+  userorders:async(req,res)=>{
+    try{    
+      let token=req.headers['accesstoken'] || req.headers['authorization'];
+      token = token.replace(/^Bearer\s+/, "");
+      const decode = await jwt.verify(token,process.env.ACCESS_TOKEN_SECRET);
+      const user_id=decode.id;
+      let id = mongoose.Types.ObjectId(user_id);
+      const user = await UserModel.findById(id);
+      if(!user)throw new Error("id incorrect");
+      // const {orderid,status}=req.body;
+      // let id = mongoose.Types.ObjectId(orderid);
+      // console.log(id);
+      const orders = await orderModel.find({userid:id});
+      // console.log(order);
+      if(!orders)throw new Error("no orders");
+      // status.toLowerCase();
+      // order.status=status;
+      // order.save();      
+      return res.status(200).json({orders});
+    } catch(err) {
+      console.log(err);
+      return res.status(400).json(err);
+    }
+  },
   
   
   

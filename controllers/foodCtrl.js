@@ -1,6 +1,7 @@
 const sellerModel=require("../models/foodModel");
 const foodlistModel=require("../models/foodlistmodel")
 const otpModel = require("../models/otpModel2");
+const orderModel = require("../models/ordermodel");
 const bcrypt = require("bcrypt");
 const nodemailer = require("nodemailer");
 const jwt = require("jsonwebtoken");
@@ -572,24 +573,73 @@ const foodCtrl={
         }
       },
       
-      removefromorders:async(req,res) =>{
+      // removefromorders:async(req,res) =>{
+      //   try{    
+      //     let token=req.headers['accesstoken'] || req.headers['authorization'];
+      //     token = token.replace(/^Bearer\s+/, "");
+      //     const decode = await jwt.verify(token,process.env.ACCESS_TOKEN_SECRET);
+      //     const user_id=decode.id;
+      //     let id = mongoose.Types.ObjectId(user_id);
+      //     const {index} = req.body;
+      //     const seller = await sellerModel.findById(id);
+          
+      //     if(!seller)throw new Error("id incorrect");
+      //     // console.log(seller.orders);
+      //     let orders = seller.orders;
+      //     orders.splice(index,1);
+      //     // console.log(orders);
+      //     seller.orders=orders;      
+      //     seller.save();
+      //     return res.status(200).json({msg:"order done"});
+      //   } catch(err) {
+      //     console.log(err);
+      //     return res.status(400).json(err);
+      //   }
+      // },
+      setorderstatus:async(req,res)=>{
+        try{    
+          // let token=req.headers['accesstoken'] || req.headers['authorization'];
+          // token = token.replace(/^Bearer\s+/, "");
+          // const decode = await jwt.verify(token,process.env.ACCESS_TOKEN_SECRET);
+          // const user_id=decode.id;
+          // let id = mongoose.Types.ObjectId(user_id);
+          // const user = await UserModel.findById(id);
+          // if(!user)throw new Error("id incorrect");
+          const {orderid,status}=req.body;
+          let id = mongoose.Types.ObjectId(orderid);
+          // console.log(id);
+          const order = await orderModel.findById(id);
+          // console.log(order);
+          if(!order)throw new Error("order id incorrect");
+          // status.toLowerCase();
+          order.status=status;
+          order.save();      
+          return res.status(200).json({msg:"status updated"});
+        } catch(err) {
+          console.log(err);
+          return res.status(400).json(err);
+        }
+      },
+      sellerpendingorders:async(req,res)=>{
         try{    
           let token=req.headers['accesstoken'] || req.headers['authorization'];
           token = token.replace(/^Bearer\s+/, "");
           const decode = await jwt.verify(token,process.env.ACCESS_TOKEN_SECRET);
           const user_id=decode.id;
           let id = mongoose.Types.ObjectId(user_id);
-          const {index} = req.body;
-          const seller = await sellerModel.findById(id);
-          
-          if(!seller)throw new Error("id incorrect");
-          // console.log(seller.orders);
-          let orders = seller.orders;
-          orders.splice(index,1);
-          // console.log(orders);
-          seller.orders=orders;      
-          seller.save();
-          return res.status(200).json({msg:"order done"});
+          const user = await sellerModel.findById(id);
+          if(!user)throw new Error("id incorrect");
+          // const {orderid,status}=req.body;
+          // let id = mongoose.Types.ObjectId(orderid);
+          // console.log(id);
+          const orders = await orderModel.find({sellerid:id});
+          // const orders = await orderModel.find({sellerid:id, status:"Pending"});
+          // console.log(order);
+          if(!orders)throw new Error("no orders");
+          // status.toLowerCase();
+          // order.status=status;
+          // order.save();      
+          return res.status(200).json({orders});
         } catch(err) {
           console.log(err);
           return res.status(400).json(err);

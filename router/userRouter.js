@@ -33,4 +33,6 @@ router.post("/search",auth,userCtrl.search);
 router.post("/fooddetails",auth,userCtrl.fooddetails);
 router.post("/category",auth,userCtrl.category);
 
+router.get("/userorders",auth,userCtrl.userorders);
+
 module.exports = router;
