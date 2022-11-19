@@ -42,7 +42,7 @@ const foodSchema=mongoose.Schema({
     },
     imgpath:{
         type:Array,
-        default:"uploads/1668230968407-Screenshot_20221023_043313.png"
+        default:"uploads/1668831088524-Logo.png"
     },
     state:{
         type:String,
