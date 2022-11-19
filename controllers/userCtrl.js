@@ -1008,7 +1008,10 @@ const userCtrl = {
             }
           }
       ]
-      const resultcategory=await foodlistModel.aggregate(pipeline);
+      if(category=="all")
+      {resultcategory=await foodlistModel.find();}
+      else
+      {resultcategory=await foodlistModel.aggregate(pipeline);}
 
        return res.status(200).json({
         msg:"food category sent !",
@@ -1145,35 +1148,55 @@ const userCtrl = {
       const decode = await jwt.verify(token,process.env.ACCESS_TOKEN_SECRET);
       const user_id=decode.id;
       const id = mongoose.Types.ObjectId(user_id);
-      const user=await UserModel.findById(id);
-      if(!user)throw new Error("id incorrect");
-      console.log(user);
-      let i=0;
-      let j=0;
-      let carteletemp;
-      orderhistory.forEach(cartele=>{
-        i++;
-        if(cartele.foodid==food_id)
+      const foodid = mongoose.Types.ObjectId(food_id);
+      // console.log(id);
+      const orders=await orderModel.find({userid:id});
+      await orderModel.deleteMany( { "userid" : id } );
+      if(!orders)throw new Error("id incorrect");
+      // console.log(orders);
+      // orders.forEach(cartele=>{
+      //   cartele.order.forEach(item=>{
+      //     // console.log(item);
+      //     if(item.rating!=0)throw new Error("Item Already rated by this user");
+      //     else
+      //     item.rating=rating;
+      //   });
+        
+      // });
+      for(i=0;i<orders.length;i++)
+      {
+        // console.log(orders[i]);
+        for(j=0;j<orders[i].order.length;j++)
         {
-          carteletemp=cartele;
-          j=i;
+          // console.log(orders[i].order[j]);
+          if(orders[i].order[j].rating!=0)throw new Error("Item Already rated by this user");
+          else if(orders[i].order[j]._id==food_id)
+          orders[i].order[j].rating=rating;
         }
-  
-      })
-      console.log(carteletemp);
-      if(carteletemp.rating!=0)throw new Error("User already rated the item !");
-      carteletemp.rating=rating;
+        await orders[i].save();
+      }
+      // for(i=0;i<orders.length;i++)
+      // {
+      //   result = await orders[i].save();
+      //   console.log(result);
+      // }
+      // console.log(orders[0].order);
       
-      orderhistory.splice(j-1,1,carteletemp);
-      console.log(orderhistory);
+      // console.log(carteletemp);
+      // if(carteletemp.rating!=0)throw new Error("User already rated the item !");
+      // carteletemp.rating=rating;
+      
+      // orderhistory.splice(j-1,1,carteletemp);
+      // console.log(orderhistory);
 
-      const result=await UserModel.findByIdAndUpdate({_id:id},{orderhistory:orderhistory},{new: true});
-      const ratingele=await foodlistModel.findById(food_id);
-      console.log(ratingele);
-      ratingele.ratingtotal=+ratingele.ratingtotal+ +rating;
-      ratingele.ratingcount=ratingele.ratingcount+1;
-      ratingele.food_rating=ratingele.ratingtotal/ratingele.ratingcount;
-      ratingele.save();
+      // const result=await UserModel.findByIdAndUpdate({_id:id},{orderhistory:orderhistory},{new: true});
+      //
+      // const ratingele=await foodlistModel.findById(food_id);
+      // console.log(ratingele);
+      // ratingele.ratingtotal=+ratingele.ratingtotal+ +rating;
+      // ratingele.ratingcount=ratingele.ratingcount+1;
+      // ratingele.food_rating=ratingele.ratingtotal/ratingele.ratingcount;
+      // ratingele.save();
 
       return res.status(200).json({
       msg:"rating added !",
